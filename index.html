@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Informatyka O-07 Trening</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one task per screen, like a worksheet on graph paper; tab strip of task numbers on top, big touch targets for a tablet */
+:root{
+  --bg:#EDF1F6; --grid:#DCE3EC; --panel:#FFFFFF; --ink:#17223A; --muted:#5A6781; --line:#C9D2DF;
+  --accent:#2C55D8; --accent-soft:#E3EAFD; --ok:#17845A; --ok-soft:#DDF3E8; --bad:#C2412A; --bad-soft:#FBE3DD;
+  --code-bg:#F4F6FA; --sel:#2C55D8; --sel-ink:#FFFFFF; --note:#FFF5D6; --note-ink:#5C4500;
+  --f-display:"Space Grotesk",system-ui,sans-serif; --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1522; --grid:#18202F; --panel:#172033; --ink:#E6EBF5; --muted:#9AA7C0; --line:#2C3850;
+  --accent:#7D9BFF; --accent-soft:#1F2C50; --ok:#4CC58E; --ok-soft:#123528; --bad:#FF8A70; --bad-soft:#3D1D17;
+  --code-bg:#111A2A; --sel:#7D9BFF; --sel-ink:#0F1522; --note:#3A3115; --note-ink:#F3DE9C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1522; --grid:#18202F; --panel:#172033; --ink:#E6EBF5; --muted:#9AA7C0; --line:#2C3850;
+  --accent:#7D9BFF; --accent-soft:#1F2C50; --ok:#4CC58E; --ok-soft:#123528; --bad:#FF8A70; --bad-soft:#3D1D17;
+  --code-bg:#111A2A; --sel:#7D9BFF; --sel-ink:#0F1522; --note:#3A3115; --note-ink:#F3DE9C; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 48px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+h1{font-family:var(--f-display);font-size:1.6rem;margin:0;letter-spacing:-.01em}
+h1 small{display:block;font-family:var(--f-body);font-size:.85rem;font-weight:500;color:var(--muted);letter-spacing:0}
+.lang{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.lang button{border:0;background:transparent;color:var(--ink);font:600 1rem var(--f-body);padding:10px 18px;min-height:44px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--accent);color:var(--sel-ink)}
+.score{font-family:var(--f-mono);font-weight:600;font-variant-numeric:tabular-nums;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:9px 14px}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+nav button{flex:0 0 auto;min-width:48px;min-height:48px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);font:700 1.05rem var(--f-display);cursor:pointer;position:relative}
+nav button.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+nav button.done-ok{background:var(--ok-soft);border-color:var(--ok)}
+nav button.done-part{background:var(--note);border-color:var(--note-ink)}
+nav button.res{padding:0 14px;font-size:.95rem}
+.card{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:22px clamp(16px,3vw,28px);display:flex;flex-direction:column;gap:18px;min-width:0}
+.thead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.thead h2{font-family:var(--f-display);font-size:1.3rem;margin:0;text-wrap:balance}
+.thead h2 span{color:var(--accent);margin-right:6px}
+.pts{font-family:var(--f-mono);color:var(--muted);white-space:nowrap}
+.section-label{font:600 .78rem var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.part{display:flex;flex-direction:column;gap:10px;min-width:0}
+.q{font-weight:600}
+.opts{display:grid;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:10px;text-align:left;width:100%;min-height:52px;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;cursor:pointer}
+.opt .mk{flex:0 0 22px;height:22px;border:2px solid var(--muted);border-radius:6px;margin-top:2px;display:grid;place-items:center;font-size:14px;font-weight:700}
+.opt.radio .mk{border-radius:50%}
+.opt.on{border-color:var(--sel);background:var(--accent-soft)}
+.opt.on .mk{background:var(--sel);border-color:var(--sel);color:var(--sel-ink)}
+.opt.is-ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.is-bad{border-color:var(--bad);background:var(--bad-soft)}
+.opt.miss{border-style:dashed;border-color:var(--ok)}
+.opt:disabled{cursor:default}
+.opt pre{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips .opt{width:auto;min-width:110px;justify-content:center}
+pre,.mono{font-family:var(--f-mono);font-size:.92rem}
+pre.code{background:var(--code-bg);border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:8px;padding:12px 14px;margin:0;overflow-x:auto;line-height:1.55}
+.opt pre.code{border-left-width:1px;background:transparent;border:0;padding:0}
+.match{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:18px}
+.match ol,.match ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.match li{display:flex;gap:8px}
+.match li b{min-width:26px;color:var(--accent);font-family:var(--f-display)}
+.mgrid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border:1.5px solid var(--ink);border-radius:8px;overflow:hidden}
+.mgrid div{border-right:1px solid var(--line);display:flex;flex-direction:column}
+.mgrid div:last-child{border-right:0}
+.mgrid span{text-align:center;font:700 1rem var(--f-display);padding:6px 0;border-bottom:1px solid var(--line)}
+.mgrid select{appearance:none;-webkit-appearance:none;border:0;background:var(--panel);color:var(--ink);font:700 1.15rem var(--f-display);text-align:center;text-align-last:center;min-height:52px;width:100%;cursor:pointer}
+.mgrid select.is-ok{background:var(--ok-soft)} .mgrid select.is-bad{background:var(--bad-soft)}
+.inrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:1.05rem}
+.inrow input{font:600 1.05rem var(--f-mono);padding:10px 12px;min-height:48px;width:min(100%,220px);border:1.5px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+.inrow input.is-ok{border-color:var(--ok);background:var(--ok-soft)} .inrow input.is-bad{border-color:var(--bad);background:var(--bad-soft)}
+.inrow sub{font-size:.75em}
+.fix{font:600 .9rem var(--f-mono);color:var(--ok)}
+.order-pool,.order-list{display:grid;gap:8px}
+.order-list{counter-reset:s}
+.order-list .opt{counter-increment:s}
+.order-list .opt::before{content:counter(s) ".";font:700 1rem var(--f-display);color:var(--accent);min-width:22px}
+.empty{color:var(--muted);font-style:italic;padding:8px 0}
+.serp{display:grid;gap:10px;font-family:Arial,Helvetica,sans-serif}
+.serp .bar{border:2px solid var(--muted);border-radius:999px;padding:10px 18px;color:var(--muted)}
+.serp .ai{border:2px solid var(--ok);background:var(--ok-soft);border-radius:10px;padding:12px 16px}
+.serp .ai b{display:block;margin-bottom:4px}
+.serp .res{border:1px solid var(--line);border-radius:10px;padding:10px 16px}
+.serp .res .t{color:var(--accent);font-size:1.05rem}
+.serp .res .u{color:var(--ok);font-size:.8rem}
+.serp .res .d{color:var(--muted);font-size:.9rem}
+.serp .num{font:700 .75rem var(--f-body);background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:1px 7px;margin-right:6px}
+.tablewrap{overflow-x:auto}
+table.sheet{border-collapse:collapse;font-size:.88rem;min-width:560px}
+table.sheet th,table.sheet td{border:1px solid var(--line);padding:5px 8px;text-align:left;white-space:nowrap}
+table.sheet th{background:var(--code-bg);font-weight:600;color:var(--muted)}
+table.sheet td.hl{background:var(--accent-soft)}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.btn{min-height:50px;padding:0 22px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);font:600 1rem var(--f-body);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--sel-ink)}
+.btn:focus-visible,.opt:focus-visible,nav button:focus-visible,select:focus-visible,input:focus-visible,.lang button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.verdict{display:flex;align-items:center;gap:10px;font:700 1.1rem var(--f-display);padding:12px 16px;border-radius:10px}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)} .verdict.part{background:var(--note);color:var(--note-ink)} .verdict.bad{background:var(--bad-soft);color:var(--bad)}
+.explain{border-top:2px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.explain h3{font-family:var(--f-display);margin:0;font-size:1.15rem}
+.explain p,.explain ul,.explain ol{margin:0}
+.explain li{margin:4px 0}
+.explain code{font-family:var(--f-mono);background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:.9em}
+.note{background:var(--note);color:var(--note-ink);border-radius:8px;padding:10px 14px}
+.pc{font:600 .8rem var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--accent);border:1.5px solid var(--accent);border-radius:999px;padding:3px 10px;align-self:flex-start}
+.restable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.restable td{padding:10px 6px;border-bottom:1px solid var(--line)}
+.restable td:last-child{text-align:right;font-family:var(--f-mono);font-weight:600}
+.big{font:700 3rem var(--f-display);letter-spacing:-.02em}
+.bar2{height:14px;border-radius:7px;background:var(--code-bg);border:1px solid var(--line);overflow:hidden}
+.bar2 i{display:block;height:100%;background:var(--accent)}
+@media (max-width:640px){.match{grid-template-columns:1fr}.mgrid{grid-template-columns:repeat(4,minmax(0,1fr))}.mgrid div:nth-child(4){border-right:0}.mgrid div:nth-child(-n+4){border-bottom:1px solid var(--line)}}
+nav button.answered{border-color:var(--accent);color:var(--accent)}
+.units{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.unit{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;gap:6px 12px;align-items:center;text-align:left;padding:14px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;min-height:76px}
+.unit .un{grid-row:1/3;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font:700 1.15rem var(--f-display)}
+.unit.done{border-color:var(--ok)} .unit.done .un{background:var(--ok);color:var(--sel-ink)}
+.unit .ut{font-weight:600;line-height:1.3;min-width:0}
+.unit .uc{font:600 .85rem var(--f-mono);color:var(--muted);grid-row:1}
+.unit .up{grid-column:2/4;height:8px;border-radius:4px;background:var(--code-bg);border:1px solid var(--line);overflow:hidden}
+.unit .up i{display:block;height:100%;background:var(--ok)}
+.testcard{border-color:var(--accent);border-width:2px}
+.qbox{display:flex;gap:12px;padding:14px;border:1.5px solid var(--line);border-radius:12px;min-width:0}
+.qbox.ok{border-color:var(--ok)} .qbox.bad{border-color:var(--bad)}
+.qn{flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font:700 .95rem var(--f-display)}
+.qbox.ok .qn{background:var(--ok);color:var(--sel-ink)}
+.qin{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.tip{margin:0;background:var(--note);color:var(--note-ink);border-radius:8px;padding:10px 14px}
+@media (prefers-reduced-motion:no-preference){.opt,.btn,nav button{transition:background .15s,border-color .15s}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title"></h1>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div class="score" id="score"></div>
+      <div class="lang" role="group" aria-label="Język / Sprache">
+        <button id="lang-pl" type="button">PL</button><button id="lang-de" type="button">DE</button>
+      </div>
+    </div>
+  </header>
+  <nav id="nav" aria-label="Zadania"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+(function(){
+"use strict";
+let lang = "pl";
+try { lang = localStorage.getItem("o07-lang") || "pl"; } catch(e) {}
+const L = o => (o == null ? "" : typeof o === "string" ? o : (o[lang] ?? o.pl));
+
+const UI = {
+  title:{pl:"Informatyka O-07 · trening",de:"Informatik O-07 · Training"},
+  sub:{pl:"Egzamin klasyfikacyjny, klasa VII",de:"Klassifikationsprüfung, Klasse VII"},
+  check:{pl:"Sprawdź",de:"Prüfen"}, retry:{pl:"Jeszcze raz",de:"Nochmal"},
+  next:{pl:"Dalej →",de:"Weiter →"}, prev:{pl:"← Wstecz",de:"← Zurück"},
+  result:{pl:"Wynik",de:"Ergebnis"}, explain:{pl:"Wyjaśnienie",de:"Erklärung"},
+  ok:{pl:"Świetnie, wszystko dobrze!",de:"Super, alles richtig!"},
+  part:{pl:"Częściowo dobrze",de:"Teilweise richtig"}, bad:{pl:"Jeszcze nie – zobacz wyjaśnienie",de:"Noch nicht – schau dir die Erklärung an"},
+  pts:{pl:"pkt",de:"Pkt"}, restart:{pl:"Zacznij od nowa",de:"Von vorn beginnen"},
+  sure:{pl:"Na pewno? Dotknij jeszcze raz",de:"Sicher? Nochmal antippen"},
+  computer:{pl:"Na komputerze",de:"Am Computer"},
+  tapOrder:{pl:"Dotykaj kroki w dobrej kolejności:",de:"Tippe die Schritte in der richtigen Reihenfolge an:"},
+  yourOrder:{pl:"Twoja kolejność:",de:"Deine Reihenfolge:"}, none:{pl:"jeszcze nic",de:"noch nichts"},
+  clear:{pl:"Wyczyść",de:"Leeren"}, also:{pl:"też dobrze:",de:"auch richtig:"},
+  correctIs:{pl:"dobrze:",de:"richtig:"},
+  resIntro:{pl:"Twój wynik w teście próbnym",de:"Dein Ergebnis im Übungstest"},
+  notDone:{pl:"jeszcze nie sprawdzone",de:"noch nicht geprüft"},
+  resHint:{pl:"Zadania z mniejszą liczbą punktów powtórz jeszcze raz. Dotknij numeru zadania na górze.",de:"Aufgaben mit wenigen Punkten nochmal üben. Tippe oben auf die Aufgabennummer."},
+  task:{pl:"Zadanie",de:"Aufgabe"}
+};
+
+// ---------- content ----------
+const codeOla = {
+  pl:'a = input("Podaj pierwszą liczbę: ")\nb = input("Podaj drugą liczbę: ")\nprint("Suma:", a + b)',
+  de:'a = input("Gib die erste Zahl ein: ")\nb = input("Gib die zweite Zahl ein: ")\nprint("Summe:", a + b)'};
+const codeOlaFix = {
+  pl:'a = int(input("Podaj pierwszą liczbę: "))\nb = int(input("Podaj drugą liczbę: "))\nprint("Suma:", a + b)',
+  de:'a = int(input("Gib die erste Zahl ein: "))\nb = int(input("Gib die zweite Zahl ein: "))\nprint("Summe:", a + b)'};
+const codeOlaV2 = {
+  pl:'a = input("Podaj pierwszą liczbę: ")\nb = input("Podaj drugą liczbę: ")\nprint("Suma:", int(a + b))',
+  de:'a = input("Gib die erste Zahl ein: ")\nb = input("Gib die zweite Zahl ein: ")\nprint("Summe:", int(a + b))'};
+const codeOlaV3 = {
+  pl:'a = int(input("Podaj pierwszą liczbę: "))\nb = input("Podaj drugą liczbę: ")\nprint("Suma:", a + b)',
+  de:'a = int(input("Gib die erste Zahl ein: "))\nb = input("Gib die zweite Zahl ein: ")\nprint("Summe:", a + b)'};
+const code9 = {
+  pl:'a = int(input("Podaj a"))\n\nprint("pole wynosi:")\npole = a * a\nprint(pole)',
+  de:'a = int(input("Gib a ein"))\n\nprint("Fläche beträgt:")\nflaeche = a * a\nprint(flaeche)'};
+const code9ok = {
+  pl:'a = int(input("Podaj a: "))\nif a <= 0:\n    print("ERROR a<=0")\nelse:\n    pole = a * a\n    obwod = 4 * a\n    print("Pole wynosi:", pole)\n    print("Obwód wynosi:", obwod)',
+  de:'a = int(input("Gib a ein: "))\nif a <= 0:\n    print("ERROR a<=0")\nelse:\n    flaeche = a * a\n    umfang = 4 * a\n    print("Fläche beträgt:", flaeche)\n    print("Umfang beträgt:", umfang)'};
+const code9b = {
+  pl:'a = int(input("Podaj a: "))\nif a < 0:\n    print("ERROR a<=0")\nelse:\n    pole = a * a\n    obwod = 4 * a\n    print("Pole wynosi:", pole)\n    print("Obwód wynosi:", obwod)',
+  de:'a = int(input("Gib a ein: "))\nif a < 0:\n    print("ERROR a<=0")\nelse:\n    flaeche = a * a\n    umfang = 4 * a\n    print("Fläche beträgt:", flaeche)\n    print("Umfang beträgt:", umfang)'};
+const code9c = {
+  pl:'a = int(input("Podaj a: "))\nif a <= 0:\n    print("ERROR a<=0")\nelse:\n    pole = a * a\n    obwod = 4 + a\n    print("Pole wynosi:", pole)\n    print("Obwód wynosi:", obwod)',
+  de:'a = int(input("Gib a ein: "))\nif a <= 0:\n    print("ERROR a<=0")\nelse:\n    flaeche = a * a\n    umfang = 4 + a\n    print("Fläche beträgt:", flaeche)\n    print("Umfang beträgt:", umfang)'};
+
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const pre = c => `<pre class="code">${esc(L(c))}</pre>`;
+
+const TASKS = [
+{ pts:4, title:{pl:"Pojęcia i opisy",de:"Begriffe und Beschreibungen"},
+  parts:[{type:"match",
+    q:{pl:"Dopasuj pojęcia do opisów. Pod każdą cyfrą wybierz właściwą literę.",de:"Ordne die Begriffe den Beschreibungen zu. Wähle unter jeder Ziffer den passenden Buchstaben."},
+    terms:{pl:["algorytm","opis słowny","lista kroków","schemat blokowy","kryptografia","certyfikat bezpieczeństwa","podpis cyfrowy","kod ASCII"],
+           de:["Algorithmus","Beschreibung in Worten","Schrittliste","Flussdiagramm (Programmablaufplan)","Kryptografie","Sicherheitszertifikat","digitale Signatur","ASCII-Code"]},
+    descs:{pl:["nauka o szyfrowaniu i odszyfrowywaniu wiadomości","algorytm przedstawiony graficznie – za pomocą bloków i strzałek","dokument wystawiony przez zaufaną instytucję","ciąg instrukcji, który prowadzi do rozwiązania problemu","sposób kodowania znaków – każdy znak ma swój unikalny numer","algorytm zapisany jako kroki w ustalonej kolejności","sposób sprawdzenia, czy dokument naprawdę pochodzi od danej osoby","algorytm opisany zwykłym, naturalnym językiem"],
+           de:["Lehre vom Ver- und Entschlüsseln von Nachrichten","Algorithmus als Zeichnung – mit Kästchen und Pfeilen","Dokument, ausgestellt von einer vertrauenswürdigen Stelle","Folge von Anweisungen, die zur Lösung eines Problems führt","Zeichenkodierung – jedes Zeichen hat eine eigene Nummer","Algorithmus als Schritte in fester Reihenfolge","Verfahren, um zu prüfen, ob ein Dokument wirklich von einer bestimmten Person stammt","Algorithmus in normaler, natürlicher Sprache beschrieben"]},
+    answer:["D","H","F","B","A","C","G","E"]}],
+  explain:{
+    pl:`<p><b>Rozwiązanie:</b> 1–D, 2–H, 3–F, 4–B, 5–A, 6–C, 7–G, 8–E</p><ul>
+<li><b>Algorytm</b> to przepis: kroki, które prowadzą do rozwiązania problemu.</li>
+<li>Algorytm można zapisać na trzy sposoby: <b>opis słowny</b> (zwykły język), <b>lista kroków</b> (ponumerowane kroki), <b>schemat blokowy</b> (rysunek z bloków i strzałek).</li>
+<li><b>Kryptografia</b> – szyfrowanie i odszyfrowywanie wiadomości.</li>
+<li><b>Certyfikat bezpieczeństwa</b> – „dowód osobisty” strony internetowej, wystawiony przez zaufaną instytucję. Widać go jako kłódkę w przeglądarce.</li>
+<li><b>Podpis cyfrowy</b> – elektroniczny podpis. Potwierdza, od kogo pochodzi dokument.</li>
+<li><b>Kod ASCII</b> – każdy znak ma swój numer, np. A = 65.</li></ul>
+<p class="note">Uwaga: na prawdziwym egzaminie opisy są w innej kolejności. Tam rozwiązanie to: 1–B, 2–D, 3–E, 4–C, 5–H, 6–F, 7–G, 8–A.</p>`,
+    de:`<p><b>Lösung:</b> 1–D, 2–H, 3–F, 4–B, 5–A, 6–C, 7–G, 8–E</p><ul>
+<li><b>Algorithmus</b> = eine Anleitung wie ein Rezept: Schritte, die zur Lösung führen.</li>
+<li>Einen Algorithmus kann man auf drei Arten aufschreiben: <b>in Worten</b> (normale Sprache), als <b>Schrittliste</b> (nummerierte Schritte), als <b>Flussdiagramm</b> (Zeichnung mit Kästchen und Pfeilen).</li>
+<li><b>Kryptografie</b> = Nachrichten ver- und entschlüsseln.</li>
+<li><b>Sicherheitszertifikat</b> = der „Ausweis“ einer Webseite, ausgestellt von einer vertrauenswürdigen Stelle. Man sieht es am Schloss im Browser.</li>
+<li><b>Digitale Signatur</b> = elektronische Unterschrift. Sie beweist, von wem ein Dokument stammt.</li>
+<li><b>ASCII-Code</b>: Jedes Zeichen hat eine Nummer, z. B. A = 65.</li></ul>
+<p class="note">Achtung: In der echten Prüfung stehen die Beschreibungen in anderer Reihenfolge. Dort ist die Lösung: 1–B, 2–D, 3–E, 4–C, 5–H, 6–F, 7–G, 8–A.</p>`}},
+
+{ pts:2, title:{pl:"Tekstowe języki programowania",de:"Textbasierte Programmiersprachen"},
+  parts:[{type:"atleast", min:4, chips:true,
+    q:{pl:"Zaznacz co najmniej 4 tekstowe języki programowania.",de:"Tippe mindestens 4 textbasierte Programmiersprachen an."},
+    options:[{t:"Python",ok:1},{t:"Scratch",ok:0},{t:"JavaScript",ok:1},{t:"Word",ok:0},{t:"C++",ok:1},{t:"Excel",ok:0},{t:"Java",ok:1},{t:"Windows",ok:0},{t:"C#",ok:1},{t:"PHP",ok:1}]}],
+  explain:{
+    pl:`<p><b>Dobrze:</b> Python, JavaScript, C++, Java, C#, PHP – wystarczą 4 z nich.</p><ul>
+<li><b>Tekstowy</b> język oznacza, że kod programu wpisujesz jako tekst.</li>
+<li><b>Scratch</b> się nie liczy: tam układasz kolorowe klocki (język blokowy).</li>
+<li>Word, Excel i Windows to programy i system operacyjny, a nie języki programowania.</li></ul>
+<p class="note">Na egzamin: napisz Python, JavaScript, C++ i Java.</p>`,
+    de:`<p><b>Richtig:</b> Python, JavaScript, C++, Java, C#, PHP – 4 davon reichen.</p><ul>
+<li><b>Textbasiert</b> heißt: Man tippt den Programmcode als Text ein.</li>
+<li><b>Scratch</b> zählt nicht: Dort schiebt man bunte Bausteine zusammen (blockbasiert).</li>
+<li>Word, Excel und Windows sind Programme bzw. ein Betriebssystem, keine Programmiersprachen.</li></ul>
+<p class="note">Für die Prüfung: Python, JavaScript, C++ und Java aufschreiben.</p>`}},
+
+{ pts:4, title:{pl:"Wyniki wyszukiwania i przegląd od AI",de:"Suchergebnisse und KI-Übersicht"},
+  intro:()=>`<div class="serp">
+<div class="bar">🔍&nbsp; ${L({pl:"kto wymyślił www",de:"wer hat das www erfunden"})}</div>
+<div class="ai"><b>✦ ${L({pl:"Przegląd od AI",de:"KI-Übersicht"})}</b>${L({pl:"World Wide Web wymyślił Bill Gates w 1995 roku, gdy pracował w Microsofcie.<br>WWW i internet to dokładnie to samo – dwie nazwy jednej sieci.",de:"Das World Wide Web hat Bill Gates im Jahr 1995 erfunden, als er bei Microsoft arbeitete.<br>WWW und Internet sind genau dasselbe – zwei Namen für ein Netz."})}</div>
+<div class="res"><div class="t"><span class="num">1</span>${L({pl:"Historia internetu – encyklopedia informatyki",de:"Geschichte des Internets – Informatik-Enzyklopädie"})}</div><div class="u">encyklopedia-przyklad.pl › historia-www</div><div class="d">${L({pl:"World Wide Web stworzył Tim Berners-Lee w 1989 roku w laboratorium CERN w Szwajcarii. Pierwsza strona WWW ruszyła w 1991 roku.",de:"Das World Wide Web schuf Tim Berners-Lee 1989 im Labor CERN in der Schweiz. Die erste WWW-Seite ging 1991 online."})}</div></div>
+<div class="res"><div class="t"><span class="num">2</span>${L({pl:"Internet a WWW – czym się różnią?",de:"Internet und WWW – worin unterscheiden sie sich?"})}</div><div class="u">informatyka-szkola-przyklad.pl</div><div class="d">${L({pl:"Internet to sieć łącząca komputery, powstała wcześniej (ARPANET, 1969). WWW to jedna z usług działających w internecie, obok np. poczty e-mail.",de:"Das Internet ist ein Netz, das Computer verbindet; es entstand früher (ARPANET, 1969). Das WWW ist einer der Dienste im Internet, neben z. B. E-Mail."})}</div></div>
+<div class="res"><div class="t"><span class="num">3</span>${L({pl:"Kto wymyślił internet??? – forum",de:"Wer hat das Internet erfunden??? – Forum"})}</div><div class="u">forum-gracze-przyklad.pl › watek</div><div class="d">${L({pl:"kuba_2011: chyba Bill Gates, bo przecież założył Microsoft xD",de:"kuba_2011: wahrscheinlich Bill Gates, der hat doch Microsoft gegründet xD"})}</div></div></div>`,
+  parts:[
+   {type:"multi", label:"a)", q:{pl:"Które zdania w przeglądzie od AI są nieprawdziwe? Zaznacz wszystkie.",de:"Welche Sätze in der KI-Übersicht sind falsch? Tippe alle an."},
+    options:[{t:{pl:"„World Wide Web wymyślił Bill Gates w 1995 roku, gdy pracował w Microsofcie.”",de:"„Das WWW hat Bill Gates 1995 erfunden, als er bei Microsoft arbeitete.“"},ok:1},
+             {t:{pl:"„Tim Berners-Lee stworzył WWW w 1989 roku.” (wynik 1)",de:"„Tim Berners-Lee schuf das WWW 1989.“ (Ergebnis 1)"},ok:0},
+             {t:{pl:"„WWW i internet to dokładnie to samo – dwie nazwy jednej sieci.”",de:"„WWW und Internet sind genau dasselbe – zwei Namen für ein Netz.“"},ok:1},
+             {t:{pl:"„Internet powstał wcześniej niż WWW.” (wynik 2)",de:"„Das Internet ist älter als das WWW.“ (Ergebnis 2)"},ok:0}]},
+   {type:"single", label:"a)", q:{pl:"Jak jest naprawdę? Kto, kiedy i gdzie stworzył WWW?",de:"Wie ist es wirklich? Wer hat das WWW wann und wo geschaffen?"},
+    options:[{t:{pl:"Bill Gates, 1995, Microsoft (USA)",de:"Bill Gates, 1995, Microsoft (USA)"},ok:0},
+             {t:{pl:"Tim Berners-Lee, 1989, CERN (Szwajcaria)",de:"Tim Berners-Lee, 1989, CERN (Schweiz)"},ok:1},
+             {t:{pl:"Steve Jobs, 1969, ARPANET (USA)",de:"Steve Jobs, 1969, ARPANET (USA)"},ok:0},
+             {t:{pl:"Mark Zuckerberg, 2004, Facebook",de:"Mark Zuckerberg, 2004, Facebook"},ok:0}]},
+   {type:"single", label:"a)", q:{pl:"Jak jest naprawdę z internetem i WWW?",de:"Wie ist es wirklich mit Internet und WWW?"},
+    options:[{t:{pl:"To dokładnie to samo.",de:"Das ist genau dasselbe."},ok:0},
+             {t:{pl:"WWW jest starsze niż internet.",de:"Das WWW ist älter als das Internet."},ok:0},
+             {t:{pl:"Internet to sieć łącząca komputery, a WWW to jedna z usług w internecie (obok np. e-maila).",de:"Das Internet ist das Netz, das Computer verbindet. Das WWW ist einer der Dienste im Internet (neben z. B. E-Mail)."},ok:1}]},
+   {type:"single", label:"b)", q:{pl:"Któremu z trzech wyników ufasz najmniej?",de:"Welchem der drei Ergebnisse vertraust du am wenigsten?"},
+    options:[{t:{pl:"Wynik 1 – encyklopedia",de:"Ergebnis 1 – Enzyklopädie"},ok:0},{t:{pl:"Wynik 2 – strona szkolna",de:"Ergebnis 2 – Schulseite"},ok:0},{t:{pl:"Wynik 3 – forum",de:"Ergebnis 3 – Forum"},ok:1}]},
+   {type:"multi", label:"b)", q:{pl:"Uzasadnij: dlaczego? Zaznacz wszystkie dobre powody.",de:"Begründe: Warum? Tippe alle guten Gründe an."},
+    options:[{t:{pl:"Pisze anonimowy użytkownik forum.",de:"Ein anonymer Forumsnutzer schreibt das."},ok:1},
+             {t:{pl:"Wpis jest najkrótszy.",de:"Der Eintrag ist am kürzesten."},ok:0},
+             {t:{pl:"Tylko zgaduje („chyba”) i nie podaje żadnego źródła.",de:"Er rät nur („wahrscheinlich“) und nennt keine Quelle."},ok:1},
+             {t:{pl:"Żartuje („xD”) i myli internet z WWW.",de:"Er macht Witze („xD“) und verwechselt Internet und WWW."},ok:1}]},
+   {type:"multi", label:"c)", q:{pl:"Dlaczego AI mogło podać błędną odpowiedź? Zaznacz wszystkie możliwe powody.",de:"Warum konnte die KI falsch antworten? Tippe alle möglichen Gründe an."},
+    options:[{t:{pl:"AI może coś „zmyślić” (halucynacja), gdy czegoś dokładnie nie wie.",de:"Die KI kann sich etwas „ausdenken“ (halluzinieren), wenn sie es nicht genau weiß."},ok:1},
+             {t:{pl:"AI zawsze ma rację – to wyszukiwarka się pomyliła.",de:"Die KI hat immer recht – die Suchmaschine hat sich geirrt."},ok:0},
+             {t:{pl:"AI mogło się uczyć z błędnych źródeł, np. z forów.",de:"Die KI kann aus falschen Quellen gelernt haben, z. B. aus Foren."},ok:1},
+             {t:{pl:"AI samo nie sprawdza, czy informacja jest prawdziwa.",de:"Die KI prüft nicht selbst nach, ob etwas stimmt."},ok:1}]}],
+  explain:{
+    pl:`<p><b>a) Dwa błędy AI:</b></p><ol>
+<li>WWW nie wymyślił Bill Gates, tylko <b>Tim Berners-Lee</b>, w <b>1989</b> roku w <b>CERN w Szwajcarii</b> – nie w 1995 i nie w Microsofcie.</li>
+<li>WWW i internet to <b>nie to samo</b>. Internet to sieć, która łączy komputery (starsza, ARPANET 1969). WWW (strony internetowe) to tylko jedna z usług w internecie, tak jak e-mail.</li></ol>
+<p><b>b)</b> Najmniej można ufać <b>wpisowi z forum</b>: anonimowy użytkownik tylko zgaduje („chyba”), nie podaje źródła, pisze „xD” i myli internet z WWW.</p>
+<p><b>c)</b> Możliwe powody: AI może coś zmyślić (halucynacja), mogło uczyć się z błędnych źródeł (np. z forów), samo nie sprawdza, czy informacja jest prawdziwa.</p>
+<p class="note">Zapamiętaj: odpowiedzi AI zawsze porównuj z pewnymi źródłami. Na egzaminie w c) wystarczy jeden powód.</p>`,
+    de:`<p><b>a) Die zwei Fehler der KI:</b></p><ol>
+<li>Nicht Bill Gates hat das WWW erfunden, sondern <b>Tim Berners-Lee</b>, im Jahr <b>1989</b> am <b>CERN in der Schweiz</b> – nicht 1995 und nicht bei Microsoft.</li>
+<li>WWW und Internet sind <b>nicht dasselbe</b>. Das Internet ist das Netz, das Computer verbindet (älter, ARPANET 1969). Das WWW (die Webseiten) ist nur ein Dienst im Internet, so wie E-Mail.</li></ol>
+<p><b>b)</b> Am wenigsten vertrauenswürdig ist der <b>Forumseintrag</b>: Ein anonymer Nutzer rät nur („wahrscheinlich“), nennt keine Quelle, schreibt „xD“ und verwechselt Internet und WWW.</p>
+<p><b>c)</b> Mögliche Gründe: Die KI kann sich etwas ausdenken („halluzinieren“), sie kann aus falschen Quellen gelernt haben (z. B. aus Foren), und sie prüft nicht selbst nach, ob etwas stimmt.</p>
+<p class="note">Merke: KI-Antworten immer mit zuverlässigen Quellen vergleichen. In der Prüfung reicht bei c) ein Grund.</p>`}},
+
+{ pts:4, title:{pl:"Jednostki informacji",de:"Informationseinheiten"},
+  parts:[{type:"inputs", q:{pl:"Uzupełnij wartości jednostek informacji.",de:"Ergänze die Werte der Informationseinheiten."},
+    rows:[{post:{pl:"bitów = 1 bajt",de:"Bit = 1 Byte"},ans:["8"]},
+          {post:{pl:"bajtów = 1 gigabajt",de:"Byte = 1 Gigabyte"},ans:["1073741824"],alt:["1000000000"],show:"1 073 741 824"},
+          {post:{pl:"megabajtów = 1 gigabajt",de:"Megabyte = 1 Gigabyte"},ans:["1024"],alt:["1000"]},
+          {post:{pl:"gigabajtów = 1 terabajt",de:"Gigabyte = 1 Terabyte"},ans:["1024"],alt:["1000"]}]}],
+  explain:{
+    pl:`<ul><li><b>8</b> bitów = 1 bajt</li><li><b>1 073 741 824</b> bajtów = 1 gigabajt (1024 · 1024 · 1024)</li><li><b>1024</b> megabajty = 1 gigabajt</li><li><b>1024</b> gigabajty = 1 terabajt</li></ul>
+<p>Komputer liczy w systemie dwójkowym, dlatego każdy kolejny stopień to <b>×1024</b> (= 2<sup>10</sup>): bajt → KB → MB → GB → TB.</p>
+<p class="note">Czasem liczy się też po 1000 (1 GB = 1 000 000 000 bajtów), np. na pudełkach dysków. Ta odpowiedź też jest tu zaliczona. Jeśli nie wiesz, której wersji oczekuje nauczyciel, zapytaj go.</p>`,
+    de:`<ul><li><b>8</b> Bit = 1 Byte</li><li><b>1 073 741 824</b> Byte = 1 Gigabyte (1024 · 1024 · 1024)</li><li><b>1024</b> Megabyte = 1 Gigabyte</li><li><b>1024</b> Gigabyte = 1 Terabyte</li></ul>
+<p>Computer rechnen im Zweiersystem. Deshalb ist jede Stufe <b>×1024</b> (= 2<sup>10</sup>): Byte → KB → MB → GB → TB.</p>
+<p class="note">Manchmal rechnet man auch mit 1000 (1 GB = 1 000 000 000 Byte), z. B. auf Festplatten-Verpackungen. Das wird hier auch als richtig gezählt. Wenn du unsicher bist, frag die Lehrkraft, welche Variante sie erwartet.</p>`}},
+
+{ pts:4, title:{pl:"Program Oli: „Suma: 23”",de:"Olas Programm: „Summe: 23“"},
+  intro:()=>`<p>${L({pl:"Ola wpisała w programie liczby 2 i 3. Zamiast „Suma: 5” program wypisał „Suma: 23”.",de:"Ola hat die Zahlen 2 und 3 eingegeben. Statt „Summe: 5“ hat das Programm „Summe: 23“ ausgegeben."})}</p>${pre(codeOla)}`,
+  parts:[
+   {type:"single", q:{pl:"Dlaczego program wypisał 23?",de:"Warum kam 23 heraus?"},
+    options:[{t:{pl:"Ola wpisała liczby w złej kolejności.",de:"Ola hat die Zahlen in der falschen Reihenfolge eingegeben."},ok:0},
+             {t:{pl:"input() zwraca zawsze tekst. „2” + „3” to sklejenie tekstów, więc wychodzi „23”.",de:"input() liefert immer Text. „2“ + „3“ hängt Texte aneinander, deshalb kommt „23“ heraus."},ok:1},
+             {t:{pl:"Komputer źle dodaje małe liczby.",de:"Der Computer rechnet bei kleinen Zahlen falsch."},ok:0},
+             {t:{pl:"print() zawsze wypisuje liczby obok siebie.",de:"print() schreibt Zahlen immer nebeneinander."},ok:0}]},
+   {type:"single", q:{pl:"Który program jest poprawny?",de:"Welches Programm ist richtig?"},
+    options:[{code:codeOlaV2,ok:0},{code:codeOlaFix,ok:1},{code:codeOlaV3,ok:0}]}],
+  explain:{
+    pl:`<p><b>Dlaczego „23”?</b> <code>input()</code> zawsze zwraca <b>tekst</b>, nawet gdy wpiszesz liczbę. Dla tekstów <code>+</code> oznacza „sklej”: "2" + "3" = "23".</p>
+<p><b>Poprawka:</b> zamień tekst na liczbę całkowitą funkcją <code>int()</code>:</p>${pre(codeOlaFix)}
+<p>Teraz <code>a + b</code> naprawdę liczy: 2 + 3 = 5.</p>
+<ul><li>Wersja z <code>int(a + b)</code> jest zła: najpierw skleja "23", potem robi z tego liczbę 23.</li><li>Wersja z <code>int()</code> tylko przy <code>a</code> daje błąd: nie można dodać liczby i tekstu.</li></ul>
+<p class="note">Na egzaminie: wyjaśnij błąd <b>i</b> napisz poprawiony program.</p>`,
+    de:`<p><b>Warum „23“?</b> <code>input()</code> liefert immer <b>Text</b>, auch wenn man eine Zahl eintippt. Bei Text bedeutet <code>+</code> „aneinanderhängen“: "2" + "3" = "23".</p>
+<p><b>Lösung:</b> Den Text mit <code>int()</code> in eine ganze Zahl umwandeln:</p>${pre(codeOlaFix)}
+<p>Jetzt rechnet <code>a + b</code> wirklich: 2 + 3 = 5.</p>
+<ul><li>Die Variante mit <code>int(a + b)</code> ist falsch: Sie hängt erst "23" zusammen und macht daraus dann die Zahl 23.</li><li>Die Variante mit <code>int()</code> nur bei <code>a</code> gibt einen Fehler: Zahl und Text kann man nicht addieren.</li></ul>
+<p class="note">In der Prüfung: den Fehler erklären <b>und</b> das verbesserte Programm aufschreiben.</p>`}},
+
+{ pts:3, title:{pl:"Aplikacja „Latarka”",de:"App „Taschenlampe“"},
+  intro:()=>`<p>${L({pl:"Instalujesz aplikację „Latarka”. Prosi o dostęp do: aparatu (lampy błyskowej), kontaktów, mikrofonu i lokalizacji.",de:"Du installierst die App „Taschenlampe“. Sie will Zugriff auf: Kamera (Blitzlicht), Kontakte, Mikrofon und Standort."})}</p>`,
+  parts:[
+   {type:"multi", label:"a)", chips:true, q:{pl:"Które uprawnienia są jej naprawdę potrzebne?",de:"Welche Berechtigungen braucht sie wirklich?"},
+    options:[{t:{pl:"aparat (lampa błyskowa)",de:"Kamera (Blitzlicht)"},ok:1},{t:{pl:"kontakty",de:"Kontakte"},ok:0},{t:{pl:"mikrofon",de:"Mikrofon"},ok:0},{t:{pl:"lokalizacja",de:"Standort"},ok:0}]},
+   {type:"single", label:"b)", q:{pl:"Co zrobisz z pozostałymi i dlaczego?",de:"Was machst du mit den anderen und warum?"},
+    options:[{t:{pl:"Zezwolę na wszystko, żeby aplikacja działała szybciej.",de:"Ich erlaube alles, damit die App schneller läuft."},ok:0},
+             {t:{pl:"Zezwolę, bo każda aplikacja tego potrzebuje.",de:"Ich erlaube es, weil jede App das braucht."},ok:0},
+             {t:{pl:"Odmówię – latarka ich nie potrzebuje, a aplikacja mogłaby zbierać i sprzedawać moje dane.",de:"Ich lehne ab – eine Taschenlampe braucht das nicht, und die App könnte meine Daten sammeln und verkaufen."},ok:1}]}],
+  explain:{
+    pl:`<p><b>a)</b> Tylko <b>aparat (lampa błyskowa)</b> – latarka potrzebuje tylko światła.</p>
+<p><b>b)</b> Kontakty, mikrofon i lokalizację <b>odrzucam</b> (nie zezwalam). Latarka ich nie potrzebuje. Z tymi uprawnieniami aplikacja mogłaby kopiować kontakty, podsłuchiwać, śledzić, gdzie jesteś, i sprzedawać te dane.</p>
+<p class="note">Zasada: daj aplikacji tylko te uprawnienia, których naprawdę potrzebuje. Jeśli bez nich nie działa – usuń ją i wybierz inną.</p>`,
+    de:`<p><b>a)</b> Nur die <b>Kamera (Blitzlicht)</b> – die Taschenlampe braucht nur das Licht.</p>
+<p><b>b)</b> Kontakte, Mikrofon und Standort <b>ablehnen</b>. Eine Taschenlampe braucht sie nicht. Mit diesen Rechten könnte die App deine Kontakte kopieren, mithören, verfolgen, wo du bist, und die Daten verkaufen.</p>
+<p class="note">Regel: Gib einer App nur die Rechte, die sie wirklich braucht. Funktioniert sie ohne nicht, lösche sie und nimm eine andere.</p>`}},
+
+{ pts:4, title:{pl:"Algorytm: pole kwadratu",de:"Algorithmus: Fläche eines Quadrats"},
+  intro:()=>`<p>${L({pl:"Algorytm w formie listy kroków ma obliczyć pole kwadratu (pole = a * a). Jeśli użytkownik poda a <= 0, ma dostać komunikat o błędzie.",de:"Ein Algorithmus als Schrittliste soll die Fläche eines Quadrats berechnen (Fläche = a * a). Gibt der Benutzer a <= 0 ein, soll er eine Fehlermeldung bekommen."})}</p>`,
+  parts:[{type:"order",
+    items:{pl:["Start","Wczytaj długość boku a.","Jeżeli a <= 0: wypisz „Błąd: a musi być większe od 0” i przejdź do końca.","Oblicz pole = a * a.","Wypisz pole.","Koniec"],
+           de:["Start","Lies die Seitenlänge a ein.","Wenn a <= 0: gib „Fehler: a muss größer als 0 sein“ aus und gehe zum Ende.","Berechne Fläche = a * a.","Gib die Fläche aus.","Ende"]}}],
+  explain:{
+    pl:`<p><b>Dobra kolejność:</b></p><ol><li>Start</li><li>Wczytaj długość boku a.</li><li>Jeżeli a <= 0: wypisz „Błąd: a musi być większe od 0” i przejdź do końca.</li><li>Oblicz pole = a * a.</li><li>Wypisz pole.</li><li>Koniec</li></ol>
+<p>Ważne: <b>najpierw</b> sprawdź, czy a <= 0, <b>potem</b> licz. Bok kwadratu nie może być zerowy ani ujemny.</p>
+<p class="note">Na egzaminie piszesz kroki sam – ponumerowane, każdy krok w osobnej linii.</p>`,
+    de:`<p><b>Richtige Reihenfolge:</b></p><ol><li>Start</li><li>Lies die Seitenlänge a ein.</li><li>Wenn a <= 0: gib „Fehler: a muss größer als 0 sein“ aus und gehe zum Ende.</li><li>Berechne Fläche = a * a.</li><li>Gib die Fläche aus.</li><li>Ende</li></ol>
+<p>Wichtig: <b>Erst</b> prüfen, ob a <= 0 ist, <b>dann</b> rechnen. Eine Quadratseite kann nicht null oder negativ sein.</p>
+<p class="note">In der Prüfung schreibst du die Schritte selbst auf – nummeriert, jeder Schritt in eine eigene Zeile.</p>`}},
+
+{ pts:3, computer:true, title:{pl:"Systemy liczbowe",de:"Zahlensysteme"},
+  parts:[{type:"inputs", q:{pl:"Przelicz liczby (kalkulator w trybie „Programista”).",de:"Rechne die Zahlen um (Rechner im Modus „Programmierer“)."},
+    rows:[{pre:"2026<sub>(10)</sub> =",post:"<sub>(2)</sub>",ans:["11111101010"]},
+          {pre:"6767<sub>(10)</sub> =",post:"<sub>(16)</sub>",ans:["1A6F"]},
+          {pre:"101010<sub>(2)</sub> =",post:"<sub>(10)</sub>",ans:["42"]},
+          {pre:"11111111<sub>(2)</sub> =",post:"<sub>(16)</sub>",ans:["FF"]},
+          {pre:"C0DE<sub>(16)</sub> =",post:"<sub>(10)</sub>",ans:["49374"]},
+          {pre:"404<sub>(16)</sub> =",post:"<sub>(2)</sub>",ans:["10000000100"]}]}],
+  explain:{
+    pl:`<ul class="mono"><li>2026 → 11111101010</li><li>6767 → 1A6F</li><li>101010 → 42</li><li>11111111 → FF</li><li>C0DE → 49374</li><li>404 → 10000000100</li></ul>
+<p><b>Jak to zrobić:</b> otwórz Kalkulator w Windows → menu ☰ → <b>Programista</b>. Dotknij HEX, DEC, OCT albo BIN, wpisz liczbę i odczytaj pozostałe wiersze.</p>
+<p>Przykład bez kalkulatora: 101010<sub>(2)</sub> = 32 + 8 + 2 = 42.</p>
+<p class="note">Uwaga: w „C0DE” jest zero, nie litera O. Kalkulator pokazuje liczby dwójkowe w grupach po 4 (np. 0111 1110 1010) – zera na początku pomiń.</p>`,
+    de:`<ul class="mono"><li>2026 → 11111101010</li><li>6767 → 1A6F</li><li>101010 → 42</li><li>11111111 → FF</li><li>C0DE → 49374</li><li>404 → 10000000100</li></ul>
+<p><b>So geht's:</b> Windows-Rechner öffnen → Menü ☰ → <b>Programmierer</b>. HEX, DEC, OCT oder BIN antippen, Zahl eingeben, die anderen Zeilen ablesen.</p>
+<p>Beispiel ohne Rechner: 101010<sub>(2)</sub> = 32 + 8 + 2 = 42.</p>
+<p class="note">Achtung: In „C0DE“ steht eine Null, kein O. Der Rechner zeigt Binärzahlen in Vierergruppen (z. B. 0111 1110 1010) – Nullen am Anfang weglassen.</p>`}},
+
+{ pts:4, computer:true, title:{pl:"Python: pole i obwód kwadratu",de:"Python: Fläche und Umfang"},
+  intro:()=>`<p>${L({pl:"Program z egzaminu:",de:"Das Programm aus der Prüfung:"})}</p>${pre(code9)}<p>${L({pl:"Zadanie: program ma liczyć pole (a * a) i obwód (4 * a), a dla a <= 0 wypisać „ERROR a<=0”.",de:"Aufgabe: Das Programm soll Fläche (a * a) und Umfang (4 * a) berechnen und bei a <= 0 „ERROR a<=0“ ausgeben."})}</p>`,
+  parts:[
+   {type:"single", q:{pl:"Który program robi wszystko dobrze?",de:"Welches Programm macht alles richtig?"},
+    options:[{code:code9b,ok:0},{code:code9c,ok:0},{code:code9ok,ok:1}]},
+   {type:"inputs", q:{pl:"Co wypisze poprawny program dla a = 5?",de:"Was gibt das richtige Programm bei a = 5 aus?"},
+    rows:[{pre:{pl:"Pole wynosi:",de:"Fläche beträgt:"},ans:["25"]},{pre:{pl:"Obwód wynosi:",de:"Umfang beträgt:"},ans:["20"]}]},
+   {type:"single", q:{pl:"A co wypisze dla a = 0?",de:"Und was bei a = 0?"},
+    options:[{t:"Pole wynosi: 0",ok:0,mono:1},{t:"ERROR a<=0",ok:1,mono:1},{t:{pl:"nic",de:"nichts"},ok:0}]}],
+  explain:{
+    pl:`<p><b>Poprawny program:</b></p>${pre(code9ok)}<ul>
+<li><code>int()</code> zamienia wpisany tekst na liczbę.</li>
+<li><code>if … else</code> to instrukcja warunkowa: jeśli a <= 0 → ERROR, w przeciwnym razie licz.</li>
+<li>Linie pod <code>if</code> i <code>else</code> muszą być <b>wcięte</b> (4 spacje) – w Pythonie to ważne.</li>
+<li>Program z <code>a &lt; 0</code> jest zły: dla a = 0 nie pokaże błędu. Program z <code>4 + a</code> liczy obwód źle.</li></ul>
+<p><b>Test:</b> a = 5 → pole 25, obwód 20. a = 0 albo a = -3 → ERROR a<=0.</p>
+<p class="note">Na egzaminie: zapisz plik (.py) i wyślij go e-mailem na podany adres. Temat: „Egzamin, klasa, imię i nazwisko ucznia oraz numer zadania”.</p>`,
+    de:`<p><b>Richtiges Programm:</b></p>${pre(code9ok)}<ul>
+<li><code>int()</code> macht aus dem eingegebenen Text eine Zahl.</li>
+<li><code>if … else</code> ist die bedingte Anweisung: Wenn a <= 0 → ERROR, sonst rechnen.</li>
+<li>Die Zeilen unter <code>if</code> und <code>else</code> müssen <b>eingerückt</b> sein (4 Leerzeichen) – das ist in Python wichtig.</li>
+<li>Das Programm mit <code>a &lt; 0</code> ist falsch: Bei a = 0 kommt kein Fehler. Das mit <code>4 + a</code> rechnet den Umfang falsch.</li></ul>
+<p><b>Test:</b> a = 5 → Fläche 25, Umfang 20. a = 0 oder a = -3 → ERROR a<=0.</p>
+<p class="note">In der Prüfung: Datei speichern (.py) und per E-Mail an die angegebene Adresse schicken. Betreff: „Egzamin, Klasse, Vor- und Nachname, Aufgabennummer“.</p>`}},
+
+{ pts:8, computer:true, title:{pl:"Arkusz Google",de:"Google Tabellen"},
+  intro:()=>`<p>${L({pl:"Tak może wyglądać plik od nauczyciela (przykład):",de:"So könnte die Datei der Lehrkraft aussehen (Beispiel):"})}</p>
+<div class="tablewrap"><table class="sheet"><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr>
+<tr><th>1</th><td>${L({pl:"Produkt",de:"Produkt"})}</td><td>${L({pl:"Cena/szt",de:"Preis/Stück"})}</td><td>${L({pl:"Ilość w magazynie",de:"Menge im Lager"})}</td><td>${L({pl:"Wartość całkowita",de:"Gesamtwert"})}</td><td>${L({pl:"Sprzedano w zeszłym miesiącu",de:"Verkauft letzten Monat"})}</td><td>${L({pl:"Zamówić?",de:"Nachbestellen?"})}</td></tr>
+<tr><th>2</th><td>${L({pl:"Zeszyt",de:"Heft"})}</td><td>4,50</td><td>120</td><td class="hl"></td><td>150</td><td class="hl"></td></tr>
+<tr><th>3</th><td>${L({pl:"Długopis",de:"Kuli"})}</td><td>2,00</td><td>300</td><td class="hl"></td><td>210</td><td class="hl"></td></tr>
+<tr><th>…</th><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+<tr><th>23</th><td></td><td></td><td></td><td class="hl"></td><td></td><td></td></tr></table></div>`,
+  parts:[
+   {type:"single", q:{pl:"Co robisz najpierw z plikiem nauczyciela?",de:"Was machst du zuerst mit der Datei der Lehrkraft?"},
+    options:[{t:{pl:"Od razu zmieniam oryginał nauczyciela.",de:"Ich ändere gleich das Original der Lehrkraft."},ok:0},
+             {t:{pl:"Plik → Utwórz kopię i nazywam ją: EGZAMIN, klasa, imię i nazwisko, numer zadania.",de:"Datei → Kopie erstellen und sie benennen: EGZAMIN, Klasse, Vor- und Nachname, Aufgabennummer."},ok:1},
+             {t:{pl:"Pobieram plik i otwieram w Paint.",de:"Ich lade die Datei herunter und öffne sie in Paint."},ok:0}]},
+   {type:"single", label:"a)", q:{pl:"Jak sformatować B2:B21 i D2:D21 jako walutę złoty?",de:"Wie formatierst du B2:B21 und D2:D21 als Währung Złoty?"},
+    options:[{t:{pl:"Wpisać ręcznie „zł” za każdą liczbą.",de:"Hinter jede Zahl von Hand „zł“ tippen."},ok:0},
+             {t:{pl:"Wstaw → Wykres.",de:"Einfügen → Diagramm."},ok:0},
+             {t:{pl:"Zaznaczyć zakresy (z Ctrl) → Format → Liczba → Waluta (zł).",de:"Bereiche markieren (mit Strg) → Format → Zahl → Währung (zł)."},ok:1}]},
+   {type:"single", label:"b)", q:{pl:"Jaka formuła w D2 (cena/szt * ilość w magazynie)?",de:"Welche Formel kommt in D2 (Preis/Stück * Menge im Lager)?"},
+    options:[{t:"=B2+C2",ok:0,mono:1},{t:"=B2*C2",ok:1,mono:1},{t:"=SUMA(B2:C2)",ok:0,mono:1},{t:"=B2*E2",ok:0,mono:1}]},
+   {type:"single", label:"c)", q:{pl:"Przeciągasz formułę z D2 w dół. Co będzie w D3?",de:"Du ziehst die Formel aus D2 nach unten. Was steht dann in D3?"},
+    options:[{t:"=B2*C2",ok:0,mono:1},{t:"=B3*C2",ok:0,mono:1},{t:"=B3*C3",ok:1,mono:1}]},
+   {type:"single", label:"d)", q:{pl:"Jaka formuła w D23 (suma D2:D21)?",de:"Welche Formel kommt in D23 (Summe von D2:D21)?"},
+    options:[{t:"=SUMA(D2:D21)",ok:1,mono:1},{t:"=D2+D21",ok:0,mono:1},{t:"=SUMA(B2:B21)",ok:0,mono:1}]},
+   {type:"single", label:"e)", q:{pl:"Jaka formuła w F2? (TAK, gdy ilość w magazynie C2 jest mniejsza niż sprzedaż E2, inaczej NIE)",de:"Welche Formel kommt in F2? (TAK, wenn Lagermenge C2 kleiner als Verkauf E2 ist, sonst NIE)"},
+    options:[{t:'=JEŻELI(C2>E2;"TAK";"NIE")',ok:0,mono:1},{t:'=JEŻELI(C2<E2;"TAK";"NIE")',ok:1,mono:1},{t:'=JEŻELI(C2<E2;"NIE";"TAK")',ok:0,mono:1}]},
+   {type:"single", label:"g)", q:{pl:"Jaki wykres utworzyć?",de:"Welches Diagramm erstellst du?"},
+    options:[{t:{pl:"Wykres kołowy z kolumny B, bez tytułu.",de:"Kreisdiagramm aus Spalte B, ohne Titel."},ok:0},
+             {t:{pl:"Wykres kolumnowy z kolumn A (produkty) i E (sprzedaż), z tytułem np. „Sprzedaż produktów w zeszłym miesiącu”.",de:"Säulendiagramm aus Spalte A (Produkte) und E (Verkauf), mit Titel z. B. „Verkaufte Produkte im letzten Monat“."},ok:1},
+             {t:{pl:"Wykres liniowy z kolumny C.",de:"Liniendiagramm aus Spalte C."},ok:0}]}],
+  explain:{
+    pl:`<ol type="a">
+<li>Zaznacz B2:B21, przytrzymaj <b>Ctrl</b> i zaznacz D2:D21 → <b>Format → Liczba → Waluta</b>. (Jeśli nie ma zł: Waluta niestandardowa → zł.)</li>
+<li>W D2 wpisz <code>=B2*C2</code>.</li>
+<li>Kliknij D2, złap mały kwadracik w prawym dolnym rogu i przeciągnij do D21. Formuła sama się zmienia: w D3 jest <code>=B3*C3</code> itd.</li>
+<li>W D23 wpisz <code>=SUMA(D2:D21)</code>. Dwukropek oznacza „od D2 do D21”.</li>
+<li>W F2 wpisz <code>=JEŻELI(C2&lt;E2;"TAK";"NIE")</code>. Czytaj: jeżeli w magazynie jest mniej niż sprzedano w zeszłym miesiącu → TAK (trzeba zamówić).</li>
+<li>Przeciągnij F2 w dół do F21 – tak samo jak w c).</li>
+<li>Zaznacz A1:A21, z Ctrl także E1:E21 → <b>Wstaw → Wykres</b> → typ <b>kolumnowy</b> → w „Dostosuj” wpisz tytuł.</li></ol>
+<p>Na koniec: <b>Udostępnij</b> → wpisz adres e-mail z egzaminu → zaznacz <b>„Wyślij powiadomienie”</b>.</p>
+<p class="note">W polskich Arkuszach między argumentami jest średnik <code>;</code>, bo przecinek oznacza część dziesiętną. Nazwy kolumn w tabeli powyżej to tylko przykład – w pliku nauczyciela mogą wyglądać trochę inaczej.</p>`,
+    de:`<ol type="a">
+<li>B2:B21 markieren, <b>Strg</b> halten und D2:D21 markieren → <b>Format → Zahl → Währung</b>. (Falls kein zł: Benutzerdefinierte Währung → zł.)</li>
+<li>In D2 <code>=B2*C2</code> eintippen.</li>
+<li>D2 antippen, das kleine Quadrat unten rechts bis D21 ziehen. Die Formel passt sich an: In D3 steht <code>=B3*C3</code> usw.</li>
+<li>In D23 <code>=SUMA(D2:D21)</code> eintippen (auf Deutsch heißt die Funktion SUMME). Der Doppelpunkt bedeutet „von D2 bis D21“.</li>
+<li>In F2 <code>=JEŻELI(C2&lt;E2;"TAK";"NIE")</code> eintippen (auf Deutsch heißt die Funktion WENN). Lies: Wenn im Lager weniger ist, als letzten Monat verkauft wurde → TAK (nachbestellen).</li>
+<li>F2 nach unten bis F21 ziehen – genau wie bei c).</li>
+<li>A1:A21 markieren, mit Strg auch E1:E21 → <b>Einfügen → Diagramm</b> → Typ <b>Säulendiagramm</b> → unter „Anpassen“ den Titel eintragen.</li></ol>
+<p>Zum Schluss: <b>Freigeben</b> → E-Mail-Adresse aus der Prüfung eintragen → <b>„Benachrichtigung senden“</b> (polnisch: „Wyślij powiadomienie“) anhaken.</p>
+<p class="note">In der Prüfung ist Google Tabellen auf Polnisch: Funktionen heißen dort JEŻELI und SUMA, zwischen den Werten steht ein Semikolon <code>;</code>. Die Spaltennamen oben sind nur ein Beispiel – in der Datei der Lehrkraft können sie etwas anders aussehen.</p>`}}
+];
+
+// ---------- simple exercises (step 1) ----------
+TASKS[7].parts[0].rows.forEach(r => r.text = 1);
+const codeIf = {
+  pl:'a = int(input("Podaj a: "))\nif a <= 0:\n    print("ERROR")\nelse:\n    print(a * a)',
+  de:'a = int(input("Gib a ein: "))\nif a <= 0:\n    print("ERROR")\nelse:\n    print(a * a)'};
+
+const UNITS = [
+ { qs:[
+  {type:"single", q:{pl:"Co to jest algorytm?",de:"Was ist ein Algorithmus?"},
+   options:[{t:{pl:"rodzaj komputera",de:"eine Art Computer"},ok:0},{t:{pl:"przepis krok po kroku, jak rozwiązać problem",de:"eine Schritt-für-Schritt-Anleitung, um ein Problem zu lösen"},ok:1},{t:{pl:"program do rysowania",de:"ein Malprogramm"},ok:0}],
+   tip:{pl:"Algorytm jest jak przepis kulinarny: kroki, które prowadzą do celu.",de:"Ein Algorithmus ist wie ein Kochrezept: Schritte, die zum Ziel führen."}},
+  {type:"single", q:{pl:"Rysunek z bloków i strzałek, który pokazuje algorytm, to…",de:"Eine Zeichnung aus Kästchen und Pfeilen, die einen Algorithmus zeigt, ist ein …"},
+   options:[{t:{pl:"lista kroków",de:"Schrittliste"},ok:0},{t:{pl:"opis słowny",de:"Beschreibung in Worten"},ok:0},{t:{pl:"schemat blokowy",de:"Flussdiagramm"},ok:1}],
+   tip:{pl:"Bloki + strzałki = schemat blokowy.",de:"Kästchen + Pfeile = Flussdiagramm."}},
+  {type:"single", q:{pl:"„1. Weź chleb. 2. Posmaruj masłem. 3. Połóż ser.” – to…",de:"„1. Nimm Brot. 2. Streiche Butter drauf. 3. Lege Käse drauf.“ – das ist eine …"},
+   options:[{t:{pl:"lista kroków",de:"Schrittliste"},ok:1},{t:{pl:"schemat blokowy",de:"Flussdiagramm"},ok:0},{t:{pl:"kod ASCII",de:"ASCII-Code"},ok:0}],
+   tip:{pl:"Ponumerowane kroki w kolejności = lista kroków.",de:"Nummerierte Schritte der Reihe nach = Schrittliste."}},
+  {type:"single", q:{pl:"„Weź chleb, posmaruj go masłem i połóż na nim ser.” – zwykłe zdanie bez numerów to…",de:"„Nimm Brot, streiche Butter drauf und lege Käse darauf.“ – ein normaler Satz ohne Nummern ist eine …"},
+   options:[{t:{pl:"schemat blokowy",de:"Flussdiagramm"},ok:0},{t:{pl:"opis słowny",de:"Beschreibung in Worten"},ok:1},{t:{pl:"lista kroków",de:"Schrittliste"},ok:0}],
+   tip:{pl:"Zwykły, naturalny język = opis słowny.",de:"Normale, natürliche Sprache = Beschreibung in Worten."}},
+  {type:"single", q:{pl:"Kłódka obok adresu strony w przeglądarce pokazuje, że strona ma…",de:"Das Schloss neben der Adresse im Browser zeigt, dass die Seite … hat."},
+   options:[{t:{pl:"certyfikat bezpieczeństwa",de:"ein Sicherheitszertifikat"},ok:1},{t:{pl:"podpis cyfrowy",de:"eine digitale Signatur"},ok:0},{t:{pl:"kod ASCII",de:"einen ASCII-Code"},ok:0}],
+   tip:{pl:"Certyfikat wystawia zaufana instytucja – to „dowód osobisty” strony.",de:"Das Zertifikat stellt eine vertrauenswürdige Stelle aus – der „Ausweis“ der Seite."}},
+  {type:"single", q:{pl:"Elektroniczny podpis, który potwierdza, kto wysłał dokument, to…",de:"Eine elektronische Unterschrift, die zeigt, wer ein Dokument geschickt hat, ist eine …"},
+   options:[{t:{pl:"kryptografia",de:"Kryptografie"},ok:0},{t:{pl:"certyfikat",de:"Zertifikat"},ok:0},{t:{pl:"podpis cyfrowy",de:"digitale Signatur"},ok:1}],
+   tip:{pl:"Podpis cyfrowy = sprawdzenie, czy dokument pochodzi od tej osoby.",de:"Digitale Signatur = Prüfung, ob das Dokument von dieser Person stammt."}},
+  {type:"single", q:{pl:"Nauka o szyfrowaniu i odszyfrowywaniu wiadomości to…",de:"Die Lehre vom Ver- und Entschlüsseln von Nachrichten heißt …"},
+   options:[{t:{pl:"kryptografia",de:"Kryptografie"},ok:1},{t:{pl:"geografia",de:"Geografie"},ok:0},{t:{pl:"algorytm",de:"Algorithmus"},ok:0}],
+   tip:{pl:"„Krypto” znaczy „ukryty” – kryptografia to tajne pismo.",de:"„Krypto“ heißt „versteckt“ – Kryptografie ist Geheimschrift."}},
+  {type:"single", q:{pl:"W kodzie ASCII każdy znak ma swój numer. Jaki numer ma litera A?",de:"Im ASCII-Code hat jedes Zeichen eine Nummer. Welche Nummer hat der Buchstabe A?"},
+   options:[{t:"1",ok:0,mono:1},{t:"65",ok:1,mono:1},{t:"100",ok:0,mono:1}],
+   tip:{pl:"A = 65, B = 66, C = 67 … Ważne: każdy znak ma unikalny numer.",de:"A = 65, B = 66, C = 67 … Wichtig: Jedes Zeichen hat eine eigene Nummer."}}]},
+
+ { qs:[
+  {type:"single", q:{pl:"Python to…",de:"Python ist …"},
+   options:[{t:{pl:"przeglądarka internetowa",de:"ein Internetbrowser"},ok:0},{t:{pl:"język programowania",de:"eine Programmiersprache"},ok:1},{t:{pl:"gra komputerowa",de:"ein Computerspiel"},ok:0}],
+   tip:{pl:"Python to tekstowy język programowania – kod piszesz jako tekst.",de:"Python ist eine textbasierte Programmiersprache – den Code tippst du als Text."}},
+  {type:"single", q:{pl:"Jak programujesz w Scratchu?",de:"Wie programmierst du in Scratch?"},
+   options:[{t:{pl:"układam kolorowe klocki",de:"ich schiebe bunte Bausteine zusammen"},ok:1},{t:{pl:"piszę kod jako tekst",de:"ich tippe Code als Text"},ok:0}],
+   tip:{pl:"Scratch jest blokowy, więc NIE jest tekstowym językiem.",de:"Scratch ist blockbasiert, also KEINE textbasierte Sprache."}},
+  {type:"multi", chips:true, q:{pl:"Które to tekstowe języki programowania? Zaznacz wszystkie.",de:"Welche sind textbasierte Programmiersprachen? Tippe alle an."},
+   options:[{t:"Python",ok:1},{t:"Word",ok:0},{t:"Java",ok:1},{t:"Scratch",ok:0},{t:"C++",ok:1},{t:"JavaScript",ok:1}],
+   tip:{pl:"Zapamiętaj cztery: Python, Java, C++, JavaScript.",de:"Merke dir vier: Python, Java, C++, JavaScript."}}]},
+
+ { qs:[
+  {type:"single", q:{pl:"Kto stworzył WWW (World Wide Web)?",de:"Wer hat das WWW (World Wide Web) geschaffen?"},
+   options:[{t:"Bill Gates",ok:0},{t:"Tim Berners-Lee",ok:1},{t:"Steve Jobs",ok:0}],
+   tip:{pl:"Tim Berners-Lee. Bill Gates założył Microsoft – to coś innego.",de:"Tim Berners-Lee. Bill Gates hat Microsoft gegründet – das ist etwas anderes."}},
+  {type:"single", q:{pl:"Kiedy i gdzie powstało WWW?",de:"Wann und wo entstand das WWW?"},
+   options:[{t:{pl:"1989, CERN w Szwajcarii",de:"1989, CERN in der Schweiz"},ok:1},{t:{pl:"1995, Microsoft w USA",de:"1995, Microsoft in den USA"},ok:0},{t:{pl:"2004, Facebook",de:"2004, Facebook"},ok:0}],
+   tip:{pl:"1989, CERN, Szwajcaria. Pierwsza strona WWW: 1991.",de:"1989, CERN, Schweiz. Erste WWW-Seite: 1991."}},
+  {type:"single", q:{pl:"Internet to…",de:"Das Internet ist …"},
+   options:[{t:{pl:"jedna strona internetowa",de:"eine einzelne Webseite"},ok:0},{t:{pl:"sieć, która łączy komputery na całym świecie",de:"ein Netz, das Computer auf der ganzen Welt verbindet"},ok:1},{t:{pl:"program do pisania",de:"ein Schreibprogramm"},ok:0}],
+   tip:{pl:"Internet = sieć. Jest starszy niż WWW (ARPANET, 1969).",de:"Internet = Netz. Es ist älter als das WWW (ARPANET, 1969)."}},
+  {type:"single", q:{pl:"WWW to…",de:"Das WWW ist …"},
+   options:[{t:{pl:"dokładnie to samo co internet",de:"genau dasselbe wie das Internet"},ok:0},{t:{pl:"jedna z usług w internecie – strony internetowe",de:"einer der Dienste im Internet – die Webseiten"},ok:1}],
+   tip:{pl:"W internecie są różne usługi: WWW (strony), e-mail, gry online…",de:"Im Internet gibt es verschiedene Dienste: WWW (Webseiten), E-Mail, Online-Spiele …"}},
+  {type:"single", q:{pl:"Któremu źródłu najbardziej można ufać?",de:"Welcher Quelle kann man am meisten vertrauen?"},
+   options:[{t:{pl:"anonimowy wpis na forum z „xD”",de:"ein anonymer Foreneintrag mit „xD“"},ok:0},{t:{pl:"encyklopedia",de:"eine Enzyklopädie"},ok:1},{t:{pl:"komentarz w grze online",de:"ein Kommentar in einem Online-Spiel"},ok:0}],
+   tip:{pl:"Dobre źródło: wiadomo, kto pisze, są fakty, nie ma zgadywania.",de:"Gute Quelle: Man weiß, wer schreibt, es gibt Fakten, kein Raten."}},
+  {type:"single", q:{pl:"Czy AI (sztuczna inteligencja) zawsze ma rację?",de:"Hat eine KI (künstliche Intelligenz) immer recht?"},
+   options:[{t:{pl:"Tak, AI nigdy się nie myli.",de:"Ja, eine KI irrt sich nie."},ok:0},{t:{pl:"Nie – AI może się mylić albo coś zmyślić. Trzeba sprawdzać w pewnych źródłach.",de:"Nein – eine KI kann sich irren oder etwas erfinden. Man muss es in guten Quellen prüfen."},ok:1}],
+   tip:{pl:"AI uczy się też z błędnych tekstów i samo nie sprawdza faktów.",de:"Eine KI lernt auch aus falschen Texten und prüft Fakten nicht selbst."}}]},
+
+ { qs:[
+  {type:"order", q:{pl:"Ułóż od najmniejszej do największej jednostki.",de:"Ordne von der kleinsten zur größten Einheit."},
+   items:{pl:["bit","bajt","kilobajt (KB)","megabajt (MB)","gigabajt (GB)","terabajt (TB)"],de:["Bit","Byte","Kilobyte (KB)","Megabyte (MB)","Gigabyte (GB)","Terabyte (TB)"]},
+   tip:{pl:"bit → bajt → KB → MB → GB → TB. Zapamiętaj: „Kilo, Mega, Giga, Tera”.",de:"Bit → Byte → KB → MB → GB → TB. Merke: „Kilo, Mega, Giga, Tera“."}},
+  {type:"inputs", q:{pl:"Uzupełnij.",de:"Ergänze."},
+   rows:[{pre:{pl:"1 bajt =",de:"1 Byte ="},post:{pl:"bitów",de:"Bit"},ans:["8"]},
+         {pre:"1 KB =",post:{pl:"bajtów",de:"Byte"},ans:["1024"],alt:["1000"]},
+         {pre:"1 MB =",post:"KB",ans:["1024"],alt:["1000"]},
+         {pre:"1 GB =",post:"MB",ans:["1024"],alt:["1000"]},
+         {pre:"1 TB =",post:"GB",ans:["1024"],alt:["1000"]}],
+   tip:{pl:"1 bajt = 8 bitów. Każdy następny krok to ×1024.",de:"1 Byte = 8 Bit. Jede weitere Stufe ist ×1024."}},
+  {type:"single", q:{pl:"Ile bajtów ma 1 GB? (1024 · 1024 · 1024)",de:"Wie viele Byte hat 1 GB? (1024 · 1024 · 1024)"},
+   options:[{t:"1 048 576",ok:0,mono:1},{t:"1 073 741 824",ok:1,mono:1},{t:"1024",ok:0,mono:1}],
+   tip:{pl:"1024 · 1024 = 1 048 576 (to jest 1 MB w bajtach). Jeszcze raz · 1024 = 1 073 741 824.",de:"1024 · 1024 = 1 048 576 (das ist 1 MB in Byte). Nochmal · 1024 = 1 073 741 824."}}]},
+
+ { qs:[
+  {type:"single", q:{pl:"Co zwraca funkcja input()?",de:"Was liefert die Funktion input()?"},
+   options:[{t:{pl:"zawsze tekst",de:"immer Text"},ok:1},{t:{pl:"zawsze liczbę",de:"immer eine Zahl"},ok:0}],
+   tip:{pl:"Nawet gdy wpiszesz 2, input() daje tekst \"2\".",de:"Auch wenn du 2 eintippst, liefert input() den Text \"2\"."}},
+  {type:"single", q:{pl:"Co wypisze ten program?",de:"Was gibt dieses Programm aus?"}, code:'print("2" + "3")',
+   options:[{t:"5",ok:0,mono:1},{t:"23",ok:1,mono:1},{t:{pl:"błąd",de:"Fehler"},ok:0}],
+   tip:{pl:"Teksty w cudzysłowie + się sklejają: \"2\" + \"3\" = \"23\".",de:"Texte in Anführungszeichen werden mit + aneinandergehängt: \"2\" + \"3\" = \"23\"."}},
+  {type:"single", q:{pl:"A ten?",de:"Und dieses?"}, code:'print(2 + 3)',
+   options:[{t:"23",ok:0,mono:1},{t:"5",ok:1,mono:1}],
+   tip:{pl:"Bez cudzysłowu to liczby – są dodawane: 2 + 3 = 5.",de:"Ohne Anführungszeichen sind es Zahlen – sie werden addiert: 2 + 3 = 5."}},
+  {type:"single", q:{pl:"Która funkcja zamienia tekst na liczbę całkowitą?",de:"Welche Funktion macht aus Text eine ganze Zahl?"},
+   options:[{t:"print()",ok:0,mono:1},{t:"int()",ok:1,mono:1},{t:"input()",ok:0,mono:1}],
+   tip:{pl:"int = integer = liczba całkowita.",de:"int = integer = ganze Zahl."}},
+  {type:"single", q:{pl:"Co wypisze ten program?",de:"Was gibt dieses Programm aus?"}, code:'print(int("2") + int("3"))',
+   options:[{t:"5",ok:1,mono:1},{t:"23",ok:0,mono:1}],
+   tip:{pl:"int() zrobiło z tekstów liczby, więc teraz 2 + 3 = 5. Tak naprawisz program Oli!",de:"int() hat aus den Texten Zahlen gemacht, also 2 + 3 = 5. So reparierst du Olas Programm!"}}]},
+
+ { qs:[
+  {type:"single", q:{pl:"Aplikacja „Aparat” do zdjęć potrzebuje dostępu do…",de:"Eine Foto-App „Kamera“ braucht Zugriff auf …"},
+   options:[{t:{pl:"kontaktów",de:"Kontakte"},ok:0},{t:{pl:"aparatu",de:"die Kamera"},ok:1},{t:{pl:"mikrofonu i kontaktów",de:"Mikrofon und Kontakte"},ok:0}],
+   tip:{pl:"Do zdjęć wystarczy aparat.",de:"Für Fotos reicht die Kamera."}},
+  {type:"single", q:{pl:"Aplikacja „Mapy” do nawigacji potrzebuje…",de:"Eine Navigations-App „Karten“ braucht …"},
+   options:[{t:{pl:"lokalizacji",de:"den Standort"},ok:1},{t:{pl:"kontaktów",de:"die Kontakte"},ok:0},{t:{pl:"aparatu",de:"die Kamera"},ok:0}],
+   tip:{pl:"Nawigacja musi wiedzieć, gdzie jesteś – lokalizacja ma sens.",de:"Eine Navigation muss wissen, wo du bist – der Standort ist sinnvoll."}},
+  {type:"single", q:{pl:"Kalkulator prosi o dostęp do kontaktów. Co robisz?",de:"Ein Taschenrechner will Zugriff auf deine Kontakte. Was machst du?"},
+   options:[{t:{pl:"Zezwalam – może się przyda.",de:"Ich erlaube es – vielleicht nützt es."},ok:0},{t:{pl:"Odmawiam – kalkulator tego nie potrzebuje.",de:"Ich lehne ab – ein Taschenrechner braucht das nicht."},ok:1}],
+   tip:{pl:"Jeśli uprawnienie nie pasuje do aplikacji – odmów.",de:"Passt eine Berechtigung nicht zur App – ablehnen."}},
+  {type:"single", q:{pl:"Jaka jest dobra zasada?",de:"Was ist eine gute Regel?"},
+   options:[{t:{pl:"Daję aplikacji tylko te uprawnienia, których naprawdę potrzebuje.",de:"Ich gebe einer App nur die Rechte, die sie wirklich braucht."},ok:1},{t:{pl:"Zawsze zezwalam na wszystko.",de:"Ich erlaube immer alles."},ok:0}],
+   tip:{pl:"Niepotrzebne uprawnienia = ryzyko, że ktoś zbiera i sprzedaje twoje dane.",de:"Unnötige Rechte = Gefahr, dass jemand deine Daten sammelt und verkauft."}}]},
+
+ { qs:[
+  {type:"order", q:{pl:"Algorytm „Zrób herbatę”. Dotykaj kroki w dobrej kolejności.",de:"Algorithmus „Tee kochen“. Tippe die Schritte in der richtigen Reihenfolge an."},
+   items:{pl:["Start","Nalej wodę do czajnika.","Zagotuj wodę.","Włóż torebkę herbaty do kubka.","Zalej herbatę gorącą wodą.","Koniec"],de:["Start","Fülle Wasser in den Wasserkocher.","Koche das Wasser.","Lege einen Teebeutel in die Tasse.","Gieße heißes Wasser auf den Tee.","Ende"]},
+   tip:{pl:"Algorytm zawsze ma początek (Start), kroki w kolejności i koniec.",de:"Ein Algorithmus hat immer einen Anfang (Start), Schritte der Reihe nach und ein Ende."}},
+  {type:"order", q:{pl:"Algorytm „Obwód kwadratu”.",de:"Algorithmus „Umfang eines Quadrats“."},
+   items:{pl:["Start","Wczytaj a.","Oblicz obwód = 4 * a.","Wypisz obwód.","Koniec"],de:["Start","Lies a ein.","Berechne Umfang = 4 * a.","Gib den Umfang aus.","Ende"]},
+   tip:{pl:"Wczytaj → oblicz → wypisz. Ten schemat jest prawie w każdym algorytmie.",de:"Einlesen → berechnen → ausgeben. Dieses Muster steckt in fast jedem Algorithmus."}},
+  {type:"single", q:{pl:"W algorytmie „pole kwadratu” ktoś wpisze a = -2. Co powinien zrobić algorytm?",de:"Im Algorithmus „Fläche eines Quadrats“ gibt jemand a = -2 ein. Was soll der Algorithmus tun?"},
+   options:[{t:{pl:"Policzyć pole: 4",de:"Die Fläche berechnen: 4"},ok:0},{t:{pl:"Wypisać komunikat o błędzie.",de:"Eine Fehlermeldung ausgeben."},ok:1}],
+   tip:{pl:"Bok kwadratu nie może być ujemny ani równy 0.",de:"Eine Quadratseite kann nicht negativ oder 0 sein."}},
+  {type:"single", q:{pl:"Kiedy sprawdzamy, czy a <= 0?",de:"Wann prüfen wir, ob a <= 0 ist?"},
+   options:[{t:{pl:"po obliczeniu pola",de:"nach dem Berechnen der Fläche"},ok:0},{t:{pl:"przed obliczeniem pola",de:"vor dem Berechnen der Fläche"},ok:1}],
+   tip:{pl:"Najpierw sprawdź, potem licz.",de:"Erst prüfen, dann rechnen."}}]},
+
+ { qs:[
+  {type:"single", q:{pl:"Jakich cyfr używa system dwójkowy (binarny)?",de:"Welche Ziffern benutzt das Zweiersystem (Binär)?"},
+   options:[{t:{pl:"tylko 0 i 1",de:"nur 0 und 1"},ok:1},{t:"0–9",ok:0,mono:1},{t:{pl:"0–9 i A–F",de:"0–9 und A–F"},ok:0}],
+   tip:{pl:"Binarny = 2 cyfry: 0 i 1.",de:"Binär = 2 Ziffern: 0 und 1."}},
+  {type:"single", q:{pl:"Jakich znaków używa system szesnastkowy (HEX)?",de:"Welche Zeichen benutzt das Sechzehnersystem (HEX)?"},
+   options:[{t:{pl:"tylko 0 i 1",de:"nur 0 und 1"},ok:0},{t:{pl:"0–9 i A–F",de:"0–9 und A–F"},ok:1}],
+   tip:{pl:"A = 10, B = 11, C = 12, D = 13, E = 14, F = 15.",de:"A = 10, B = 11, C = 12, D = 13, E = 14, F = 15."}},
+  {type:"inputs", q:{pl:"Przelicz liczby dwójkowe na dziesiętne. (Wartości miejsc od prawej: 1, 2, 4, 8, 16, 32 …)",de:"Rechne Binärzahlen ins Zehnersystem um. (Stellenwerte von rechts: 1, 2, 4, 8, 16, 32 …)"},
+   rows:[{pre:"10<sub>(2)</sub> =",post:"<sub>(10)</sub>",ans:["2"]},{pre:"101<sub>(2)</sub> =",post:"<sub>(10)</sub>",ans:["5"]},{pre:"1000<sub>(2)</sub> =",post:"<sub>(10)</sub>",ans:["8"]},{pre:"1111<sub>(2)</sub> =",post:"<sub>(10)</sub>",ans:["15"]}],
+   tip:{pl:"101 = 4 + 0 + 1 = 5. 1111 = 8 + 4 + 2 + 1 = 15.",de:"101 = 4 + 0 + 1 = 5. 1111 = 8 + 4 + 2 + 1 = 15."}},
+  {type:"inputs", q:{pl:"Przelicz liczby szesnastkowe na dziesiętne.",de:"Rechne Hex-Zahlen ins Zehnersystem um."},
+   rows:[{pre:"A<sub>(16)</sub> =",post:"<sub>(10)</sub>",ans:["10"]},{pre:"F<sub>(16)</sub> =",post:"<sub>(10)</sub>",ans:["15"]},{pre:"10<sub>(16)</sub> =",post:"<sub>(10)</sub>",ans:["16"]}],
+   tip:{pl:"10 w HEX to 1 · 16 + 0 = 16.",de:"10 in HEX ist 1 · 16 + 0 = 16."}},
+  {type:"single", q:{pl:"Jak włączyć w Kalkulatorze Windows tryb do przeliczania systemów?",de:"Wie schaltest du im Windows-Rechner den Modus zum Umrechnen ein?"},
+   options:[{t:{pl:"Menu ☰ → Programista",de:"Menü ☰ → Programmierer"},ok:1},{t:{pl:"Menu ☰ → Naukowy",de:"Menü ☰ → Wissenschaftlich"},ok:0},{t:{pl:"Menu ☰ → Data",de:"Menü ☰ → Datum"},ok:0}],
+   tip:{pl:"W trybie „Programista” widzisz HEX, DEC, OCT i BIN jednocześnie.",de:"Im Modus „Programmierer“ siehst du HEX, DEC, OCT und BIN gleichzeitig."}}]},
+
+ { qs:[
+  {type:"single", q:{pl:"Co wypisze program dla a = 3?",de:"Was gibt das Programm bei a = 3 aus?"}, code:codeIf,
+   options:[{t:"ERROR",ok:0,mono:1},{t:"9",ok:1,mono:1},{t:"6",ok:0,mono:1}],
+   tip:{pl:"3 nie jest <= 0, więc działa else: 3 * 3 = 9.",de:"3 ist nicht <= 0, also läuft else: 3 * 3 = 9."}},
+  {type:"single", q:{pl:"A dla a = 0?",de:"Und bei a = 0?"}, code:codeIf,
+   options:[{t:"0",ok:0,mono:1},{t:"ERROR",ok:1,mono:1}],
+   tip:{pl:"<= znaczy „mniejsze lub równe”. 0 <= 0 jest prawdą → ERROR.",de:"<= heißt „kleiner oder gleich“. 0 <= 0 stimmt → ERROR."}},
+  {type:"inputs", q:{pl:"Kwadrat o boku a = 5:",de:"Quadrat mit Seite a = 5:"},
+   rows:[{pre:{pl:"pole = a * a =",de:"Fläche = a * a ="},ans:["25"]},{pre:{pl:"obwód = 4 * a =",de:"Umfang = 4 * a ="},ans:["20"]}],
+   tip:{pl:"Pole: 5 · 5 = 25. Obwód: 4 · 5 = 20.",de:"Fläche: 5 · 5 = 25. Umfang: 4 · 5 = 20."}},
+  {type:"single", q:{pl:"Co musi być przed liniami pod if i else?",de:"Was muss vor den Zeilen unter if und else stehen?"},
+   options:[{t:{pl:"wcięcie (4 spacje)",de:"eine Einrückung (4 Leerzeichen)"},ok:1},{t:{pl:"nic",de:"nichts"},ok:0},{t:{pl:"znak #",de:"ein #-Zeichen"},ok:0}],
+   tip:{pl:"W Pythonie wcięcie pokazuje, co należy do if albo else.",de:"In Python zeigt die Einrückung, was zu if oder else gehört."}},
+  {type:"single", q:{pl:"Co znaczy a <= 0?",de:"Was bedeutet a <= 0?"},
+   options:[{t:{pl:"a jest mniejsze lub równe 0",de:"a ist kleiner oder gleich 0"},ok:1},{t:{pl:"a jest większe od 0",de:"a ist größer als 0"},ok:0},{t:{pl:"a jest równe 0",de:"a ist gleich 0"},ok:0}],
+   tip:{pl:"< mniejsze, <= mniejsze lub równe, > większe, >= większe lub równe.",de:"< kleiner, <= kleiner oder gleich, > größer, >= größer oder gleich."}}]},
+
+ { qs:[
+  {type:"single", q:{pl:"Od jakiego znaku zaczyna się każda formuła w arkuszu?",de:"Mit welchem Zeichen beginnt jede Formel in der Tabelle?"},
+   options:[{t:"+",ok:0,mono:1},{t:"=",ok:1,mono:1},{t:"#",ok:0,mono:1}],
+   tip:{pl:"Bez = arkusz myśli, że to zwykły tekst.",de:"Ohne = hält die Tabelle es für normalen Text."}},
+  {type:"single", q:{pl:"Co oznacza adres B2?",de:"Was bedeutet die Adresse B2?"},
+   options:[{t:{pl:"kolumna B, wiersz 2",de:"Spalte B, Zeile 2"},ok:1},{t:{pl:"wiersz B, kolumna 2",de:"Zeile B, Spalte 2"},ok:0}],
+   tip:{pl:"Najpierw litera kolumny, potem numer wiersza.",de:"Erst der Buchstabe der Spalte, dann die Nummer der Zeile."}},
+  {type:"inputs", q:{pl:"B2 = 3, C2 = 4. Jaki wynik?",de:"B2 = 3, C2 = 4. Was kommt heraus?"},
+   rows:[{pre:"=B2*C2 →",ans:["12"]},{pre:"=B2+C2 →",ans:["7"]}],
+   tip:{pl:"* to mnożenie, + to dodawanie.",de:"* ist mal, + ist plus."}},
+  {type:"inputs", q:{pl:"A1 = 1, A2 = 2, A3 = 3. Jaki wynik?",de:"A1 = 1, A2 = 2, A3 = 3. Was kommt heraus?"},
+   rows:[{pre:"=SUMA(A1:A3) →",ans:["6"]}],
+   tip:{pl:"A1:A3 znaczy „od A1 do A3”: 1 + 2 + 3 = 6. (Po niemiecku: SUMME.)",de:"A1:A3 heißt „von A1 bis A3“: 1 + 2 + 3 = 6. (Auf Deutsch: SUMME.)"}},
+  {type:"single", q:{pl:"Co wypisze =JEŻELI(5<3;\"TAK\";\"NIE\")?",de:"Was zeigt =JEŻELI(5<3;\"TAK\";\"NIE\") an?"},
+   options:[{t:"TAK",ok:0,mono:1},{t:"NIE",ok:1,mono:1}],
+   tip:{pl:"5 < 3 to nieprawda, więc wynik to drugi tekst: NIE. (Po niemiecku: WENN.)",de:"5 < 3 stimmt nicht, also kommt der zweite Text: NIE. (Auf Deutsch heißt JEŻELI: WENN.)"}},
+  {type:"single", q:{pl:"Jak szybko skopiować formułę w dół kolumny?",de:"Wie kopierst du eine Formel schnell nach unten?"},
+   options:[{t:{pl:"przepisać ją w każdej komórce",de:"sie in jede Zelle neu tippen"},ok:0},{t:{pl:"przeciągnąć mały kwadracik w prawym dolnym rogu komórki",de:"das kleine Quadrat unten rechts an der Zelle nach unten ziehen"},ok:1}],
+   tip:{pl:"Formuła sama się dopasuje: B2*C2 → B3*C3 → B4*C4 …",de:"Die Formel passt sich an: B2*C2 → B3*C3 → B4*C4 …"}},
+  {type:"single", q:{pl:"Jak wygląda wykres kolumnowy?",de:"Wie sieht ein Säulendiagramm aus?"},
+   options:[{t:{pl:"słupki obok siebie",de:"Balken nebeneinander"},ok:1},{t:{pl:"koło podzielone na kawałki",de:"ein Kreis in Stücken"},ok:0},{t:{pl:"jedna linia",de:"eine Linie"},ok:0}],
+   tip:{pl:"Kolumny = słupki. Pamiętaj o tytule wykresu!",de:"Säulen = Balken. Denk an den Diagrammtitel!"}}]}
+];
+
+Object.assign(UI,{
+  step1:{pl:"Krok 1 · Ćwiczenia",de:"Schritt 1 · Übungen"},
+  step1t:{pl:"Łatwe zadania do każdego tematu z testu. Każde zadanie od razu sprawdzisz i zobaczysz wskazówkę.",de:"Leichte Aufgaben zu jedem Thema aus dem Test. Jede prüfst du sofort und siehst einen Tipp."},
+  step2:{pl:"Krok 2 · Test",de:"Schritt 2 · Test"},
+  step2t:{pl:"Test jak na egzaminie: 10 zadań, 40 punktów. Wynik i wyjaśnienia zobaczysz dopiero po oddaniu testu.",de:"Test wie in der Prüfung: 10 Aufgaben, 40 Punkte. Ergebnis und Erklärungen siehst du erst nach dem Abgeben."},
+  startTest:{pl:"Rozpocznij test",de:"Test starten"}, contTest:{pl:"Kontynuuj test",de:"Test fortsetzen"}, showRes:{pl:"Zobacz wynik testu",de:"Testergebnis ansehen"},
+  testHint:{pl:"Najpierw zrób wszystkie ćwiczenia – wtedy test pójdzie łatwiej.",de:"Mach zuerst alle Übungen – dann klappt der Test besser."},
+  ready:{pl:"Wszystkie ćwiczenia zrobione – możesz pisać test!",de:"Alle Übungen geschafft – du kannst den Test schreiben!"},
+  menu:{pl:"Menu",de:"Menü"},
+  nextUnit:{pl:"Następne ćwiczenie →",de:"Nächste Übung →"}, toTest:{pl:"Do testu →",de:"Zum Test →"},
+  good:{pl:"Dobrze!",de:"Richtig!"}, notYet:{pl:"Jeszcze nie.",de:"Noch nicht."},
+  tryAgain:{pl:"Spróbuj jeszcze raz",de:"Nochmal versuchen"},
+  unitDone:{pl:"Ćwiczenie zrobione – wszystko dobrze!",de:"Übung geschafft – alles richtig!"},
+  submit:{pl:"Oddaj test",de:"Test abgeben"}, submitSure:{pl:"Na pewno oddać? Dotknij jeszcze raz",de:"Wirklich abgeben? Nochmal antippen"},
+  answered:{pl:"odpowiedź jest",de:"beantwortet"}, open:{pl:"brak odpowiedzi",de:"noch offen"},
+  finish:{pl:"Zakończ →",de:"Fertig →"}, submitTitle:{pl:"Oddanie testu",de:"Test abgeben"},
+  submitText:{pl:"Sprawdź, czy odpowiedziałeś na wszystkie zadania. Po oddaniu zobaczysz punkty i wyjaśnienia.",de:"Schau, ob du alle Aufgaben beantwortet hast. Nach dem Abgeben siehst du die Punkte und die Erklärungen."},
+  newTest:{pl:"Napisz test jeszcze raz",de:"Test nochmal schreiben"},
+  resetAll:{pl:"Wszystko od nowa (ćwiczenia i test)",de:"Alles zurücksetzen (Übungen und Test)"},
+  exercise:{pl:"Ćwiczenie",de:"Übung"}, tipL:{pl:"Wskazówka:",de:"Tipp:"},
+  exProg:{pl:"Ćwiczenia",de:"Übungen"}, testL:{pl:"Test",de:"Test"},
+  seeExpl:{pl:"Dotknij numeru zadania na górze, żeby zobaczyć wyjaśnienia. Zadania z mniejszą liczbą punktów poćwicz jeszcze raz w kroku 1.",de:"Tippe oben auf eine Aufgabennummer, um die Erklärungen zu sehen. Aufgaben mit wenigen Punkten nochmal in Schritt 1 üben."}
+});
+
+// ---------- state ----------
+const KEY = "o07-state-v2";
+let S = null;
+function fresh(){ return { view:"home", unit:0, cur:0, ans:{}, perm:{}, qc:{}, solved:{}, submitted:false, score:{} }; }
+try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch(e) { S = null; }
+if (!S || typeof S !== "object" || !S.ans || !S.view) S = fresh();
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
+const tk = (ti,pi) => "t"+ti+"_"+pi, uk = (ui,qi) => "u"+ui+"_"+qi;
+function perm(key, n){
+  if (!S.perm[key] || S.perm[key].length !== n){
+    const a = [...Array(n).keys()];
+    for (let i=n-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    S.perm[key] = a;
+  }
+  return S.perm[key];
+}
+const norm = s => String(s||"").toUpperCase().replace(/^0X/,"").replace(/[\s.,'’_]/g,"").replace(/^0+(?=.)/,"");
+
+// ---------- scoring ----------
+function partResult(p, a){
+  if (p.type === "match"){ let g=0; p.answer.forEach((x,i)=>{ if(a && a[i]===x) g++; }); return [g,8]; }
+  if (p.type === "inputs"){ let g=0; p.rows.forEach((r,i)=>{ const v=norm(a&&a[i]); if(r.ans.map(norm).includes(v)||(r.alt||[]).map(norm).includes(v)) g++; }); return [g,p.rows.length]; }
+  if (p.type === "single"){ return [a!=null && p.options[a] && p.options[a].ok ? 1:0, 1]; }
+  if (p.type === "multi"){ const sel=new Set(a||[]); const ok=p.options.every((o,i)=>!!o.ok===sel.has(i)); return [ok?1:0,1]; }
+  if (p.type === "atleast"){ const sel=a||[]; const ok = sel.length>=p.min && sel.every(i=>p.options[i].ok); return [ok?1:0,1]; }
+  if (p.type === "order"){ const n=L(p.items).length; const ok=(a||[]).length===n && a.every((x,i)=>x===i); return [ok?1:0,1]; }
+  return [0,1];
+}
+const isRight = (p,a) => { const [g,t]=partResult(p,a); return g===t; };
+function hasAnswer(p,a){
+  if (a==null) return false;
+  if (Array.isArray(a)) return a.some(x => x!=="" && x!=null);
+  return true;
+}
+function taskScore(ti){
+  const t=TASKS[ti]; let g=0,tot=0;
+  t.parts.forEach((p,pi)=>{ const [a,b]=partResult(p, S.ans[tk(ti,pi)]); g+=a; tot+=b; });
+  return Math.round(t.pts * g / tot * 2) / 2;
+}
+const taskAnswered = ti => TASKS[ti].parts.some((p,pi)=>hasAnswer(p, S.ans[tk(ti,pi)]));
+const totalScore = () => TASKS.reduce((s,t,i)=> s + (S.submitted ? (S.score[i]||0) : 0), 0);
+const unitSolved = ui => UNITS[ui].qs.filter((q,qi)=>S.solved[uk(ui,qi)]).length;
+const unitDone = ui => unitSolved(ui) === UNITS[ui].qs.length;
+const allUnitsDone = () => UNITS.every((u,i)=>unitDone(i));
+const exTotal = UNITS.reduce((s,u)=>s+u.qs.length,0);
+const exSolved = () => UNITS.reduce((s,u,i)=>s+unitSolved(i),0);
+const fmt = n => (Math.round(n*2)/2).toLocaleString(lang==="pl"?"pl-PL":"de-DE");
+
+// ---------- render helpers ----------
+const $ = id => document.getElementById(id);
+const go = (patch) => { Object.assign(S, patch); save(); render(); window.scrollTo({top:0}); };
+function btn(txt, cls, fn){ const b=document.createElement("button"); b.type="button"; b.className="btn "+(cls||""); b.textContent=txt; b.onclick=fn; return b; }
+
+function renderHeader(){
+  document.documentElement.lang = lang;
+  $("title").innerHTML = `${esc(L(UI.title))}<small>${esc(L(UI.sub))}</small>`;
+  $("lang-pl").setAttribute("aria-pressed", lang==="pl"); $("lang-de").setAttribute("aria-pressed", lang==="de");
+  const sc=$("score");
+  if (S.view==="test" && S.submitted) sc.textContent = `${L(UI.testL)}: ${fmt(totalScore())} / 40 ${L(UI.pts)}`;
+  else if (S.view==="test") sc.textContent = `${L(UI.testL)}`;
+  else sc.textContent = `${L(UI.exProg)}: ${exSolved()} / ${exTotal}`;
+  const nav=$("nav"); nav.innerHTML=""; nav.hidden = S.view==="home";
+  if (S.view==="home") return;
+  const m=document.createElement("button"); m.type="button"; m.className="res"; m.textContent="☰ "+L(UI.menu); m.onclick=()=>go({view:"home"}); nav.appendChild(m);
+  if (S.view==="unit"){
+    UNITS.forEach((u,i)=>{
+      const b=document.createElement("button"); b.type="button"; b.textContent=i+1; b.setAttribute("aria-label", `${L(UI.exercise)} ${i+1}`);
+      if (S.unit===i) b.classList.add("cur");
+      if (unitDone(i)) b.classList.add("done-ok"); else if (unitSolved(i)>0) b.classList.add("done-part");
+      b.onclick=()=>go({unit:i}); nav.appendChild(b);
+    });
+  } else {
+    TASKS.forEach((t,i)=>{
+      const b=document.createElement("button"); b.type="button"; b.textContent=i+1; b.setAttribute("aria-label", `${L(UI.task)} ${i+1}`);
+      if (S.cur===i) b.classList.add("cur");
+      if (S.submitted) b.classList.add(S.score[i]===t.pts ? "done-ok" : "done-part");
+      else if (taskAnswered(i)) b.classList.add("answered");
+      b.onclick=()=>go({cur:i}); nav.appendChild(b);
+    });
+    const r=document.createElement("button"); r.type="button"; r.className="res"+(S.cur===10?" cur":""); r.textContent=S.submitted?L(UI.result):L(UI.submit);
+    r.onclick=()=>go({cur:10}); nav.appendChild(r);
+  }
+}
+
+function optBtn(html, cls, on, onClick, disabled){
+  const b=document.createElement("button"); b.type="button"; b.className="opt "+cls+(on?" on":""); b.disabled=!!disabled;
+  b.setAttribute("aria-pressed", on?"true":"false");
+  b.innerHTML = `<span class="mk">${on?"✓":""}</span><span style="min-width:0;flex:1">${html}</span>`;
+  b.onclick=onClick; return b;
+}
+const optHTML = o => o.code ? pre(o.code) : (o.mono ? `<span class="mono">${esc(L(o.t))}</span>` : esc(L(o.t)));
+
+function renderPart(key, p, box, checked){
+  let a=S.ans[key];
+  const wrap=document.createElement("div"); wrap.className="part";
+  if (p.q) wrap.insertAdjacentHTML("beforeend", `<div class="q">${p.label?`<span style="color:var(--accent)">${p.label}</span> `:""}${esc(L(p.q))}</div>`);
+  if (p.code) wrap.insertAdjacentHTML("beforeend", pre(p.code));
+  const set = v => { S.ans[key]=v; save(); render(); };
+
+  if (p.type==="single" || p.type==="multi" || p.type==="atleast"){
+    const multi = p.type!=="single";
+    const holder=document.createElement("div"); holder.className = p.chips ? "chips" : "opts";
+    const order = p.chips ? [...p.options.keys()] : perm(key, p.options.length);
+    order.forEach(i=>{
+      const o=p.options[i]; const on = multi ? (a||[]).includes(i) : a===i;
+      let cls = multi ? "" : "radio";
+      if (checked){ if (on && o.ok) cls+=" is-ok"; else if (on && !o.ok) cls+=" is-bad"; else if (!on && o.ok && p.type!=="atleast") cls+=" miss"; }
+      holder.appendChild(optBtn(optHTML(o), cls, on, ()=>{
+        if (multi){ const s=new Set(a||[]); s.has(i)?s.delete(i):s.add(i); set([...s]); } else set(i);
+      }, checked));
+    });
+    wrap.appendChild(holder);
+  }
+  else if (p.type==="match"){
+    const terms=L(p.terms), descs=L(p.descs);
+    wrap.insertAdjacentHTML("beforeend", `<div class="match"><ol>${terms.map((t,i)=>`<li><b>${i+1})</b><span>${esc(t)}</span></li>`).join("")}</ol><ul>${descs.map((d,i)=>`<li><b>${"ABCDEFGH"[i]}.</b><span>${esc(d)}</span></li>`).join("")}</ul></div>`);
+    const g=document.createElement("div"); g.className="mgrid";
+    for (let i=0;i<8;i++){
+      const c=document.createElement("div"); c.innerHTML=`<span>${i+1}</span>`;
+      const sel=document.createElement("select"); sel.id=`${key}_m${i}`; sel.setAttribute("aria-label", `${i+1}`); sel.disabled=checked;
+      sel.innerHTML = `<option value="">–</option>` + "ABCDEFGH".split("").map(x=>`<option${a&&a[i]===x?" selected":""}>${x}</option>`).join("");
+      if (checked) sel.className = (a&&a[i]===p.answer[i]) ? "is-ok" : "is-bad";
+      sel.onchange=()=>{ const v=(a||Array(8).fill("")).slice(); v[i]=sel.value; S.ans[key]=v; a=v; save(); renderHeader(); };
+      c.appendChild(sel); g.appendChild(c);
+    }
+    wrap.appendChild(g);
+    if (checked && !p.answer.every((x,i)=>a&&a[i]===x)) wrap.insertAdjacentHTML("beforeend", `<div class="fix">${L(UI.correctIs)} ${p.answer.map((x,i)=>`${i+1}–${x}`).join(", ")}</div>`);
+  }
+  else if (p.type==="inputs"){
+    const g=document.createElement("div"); g.className="opts";
+    p.rows.forEach((r,i)=>{
+      const row=document.createElement("div"); row.className="inrow";
+      if (r.pre) row.insertAdjacentHTML("beforeend", `<span>${L(r.pre)}</span>`);
+      const inp=document.createElement("input"); inp.id=`${key}_i${i}`; inp.inputMode = r.text ? "text" : "numeric"; inp.autocomplete="off"; inp.autocapitalize="characters"; inp.spellcheck=false;
+      inp.value=(a&&a[i])||""; inp.disabled=checked; inp.placeholder="…";
+      inp.oninput=()=>{ const v=(a||Array(p.rows.length).fill("")).slice(); v[i]=inp.value; S.ans[key]=v; a=v; save(); };
+      inp.onblur=()=>renderHeader();
+      row.appendChild(inp);
+      if (r.post) row.insertAdjacentHTML("beforeend", `<span>${L(r.post)}</span>`);
+      if (checked){
+        const v=norm(a&&a[i]); const main=r.ans.map(norm).includes(v); const alt=(r.alt||[]).map(norm).includes(v);
+        inp.className = (main||alt) ? "is-ok" : "is-bad";
+        if (alt) row.insertAdjacentHTML("beforeend", `<span class="fix">✓ (${L(UI.also)} ${r.show||r.ans[0]})</span>`);
+        else if (!main) row.insertAdjacentHTML("beforeend", `<span class="fix">→ ${r.show||r.ans[0]}</span>`);
+      }
+      g.appendChild(row);
+    });
+    wrap.appendChild(g);
+  }
+  else if (p.type==="order"){
+    const items=L(p.items); const seq=a||[]; const pm=perm(key, items.length);
+    wrap.insertAdjacentHTML("beforeend", `<div class="section-label">${esc(L(UI.yourOrder))}</div>`);
+    const list=document.createElement("div"); list.className="order-list";
+    if (!seq.length) list.innerHTML=`<div class="empty">${esc(L(UI.none))}</div>`;
+    seq.forEach((x,pos)=>{
+      let cls=""; if (checked) cls = x===pos ? "is-ok" : "is-bad";
+      const b=optBtn(esc(items[x]), cls, false, ()=>{ set(seq.filter((_,j)=>j!==pos)); }, checked);
+      b.querySelector(".mk").remove(); list.appendChild(b);
+    });
+    wrap.appendChild(list);
+    if (!checked){
+      const rest=pm.filter(x=>!seq.includes(x));
+      if (rest.length){
+        wrap.insertAdjacentHTML("beforeend", `<div class="section-label">${esc(L(UI.tapOrder))}</div>`);
+        const pool=document.createElement("div"); pool.className="order-pool";
+        rest.forEach(x=>{ const b=optBtn(esc(items[x]), "", false, ()=>set([...seq,x])); b.querySelector(".mk").textContent="+"; pool.appendChild(b); });
+        wrap.appendChild(pool);
+      }
+      if (seq.length){ const c=btn(L(UI.clear),"",()=>set([])); c.style.alignSelf="flex-start"; wrap.appendChild(c); }
+    } else if (!isRight(p,a)) {
+      wrap.insertAdjacentHTML("beforeend", `<div class="fix">${L(UI.correctIs)} ${items.map((t,i)=>`${i+1}. ${esc(t)}`).join(" · ")}</div>`);
+    }
+  }
+  box.appendChild(wrap);
+}
+
+// ---------- views ----------
+function renderHome(){
+  const box=document.createElement("div"); box.style.cssText="display:flex;flex-direction:column;gap:16px";
+  const c1=document.createElement("section"); c1.className="card";
+  c1.insertAdjacentHTML("beforeend", `<div class="thead"><h2>${esc(L(UI.step1))}</h2><div class="pts">${exSolved()} / ${exTotal}</div></div><p style="margin:0;color:var(--muted)">${esc(L(UI.step1t))}</p>`);
+  const grid=document.createElement("div"); grid.className="units";
+  UNITS.forEach((u,i)=>{
+    const s=unitSolved(i), n=u.qs.length;
+    const b=document.createElement("button"); b.type="button"; b.className="unit"+(s===n?" done":"");
+    b.innerHTML=`<span class="un">${s===n?"✓":i+1}</span><span class="ut">${esc(L(TASKS[i].title))}</span><span class="up"><i style="width:${Math.round(s/n*100)}%"></i></span><span class="uc">${s} / ${n}</span>`;
+    b.onclick=()=>go({view:"unit", unit:i});
+    grid.appendChild(b);
+  });
+  c1.appendChild(grid); box.appendChild(c1);
+
+  const c2=document.createElement("section"); c2.className="card testcard";
+  const done=allUnitsDone();
+  c2.insertAdjacentHTML("beforeend", `<div class="thead"><h2>${esc(L(UI.step2))}</h2><div class="pts">${S.submitted?`${fmt(totalScore())} / 40 ${L(UI.pts)}`:`40 ${L(UI.pts)}`}</div></div><p style="margin:0;color:var(--muted)">${esc(L(UI.step2t))}</p><p class="note" style="margin:0">${esc(done?L(UI.ready):L(UI.testHint))}</p>`);
+  const act=document.createElement("div"); act.className="actions";
+  const started = TASKS.some((t,i)=>taskAnswered(i));
+  act.appendChild(btn(S.submitted?L(UI.showRes):(started?L(UI.contTest):L(UI.startTest)), done||started||S.submitted?"primary":"", ()=>go({view:"test", cur:S.submitted?10:(started?S.cur:0)})));
+  c2.appendChild(act); box.appendChild(c2);
+
+  const reset=btn(L(UI.resetAll),"",null); reset.style.alignSelf="flex-start";
+  let armed=false; reset.onclick=()=>{ if(!armed){ armed=true; reset.textContent=L(UI.sure); reset.classList.add("primary"); return; } S=fresh(); save(); render(); };
+  box.appendChild(reset);
+  return box;
+}
+
+function renderUnit(ui){
+  const u=UNITS[ui];
+  const card=document.createElement("section"); card.className="card";
+  card.insertAdjacentHTML("beforeend", `<div class="thead"><h2><span>${L(UI.exercise)} ${ui+1}.</span>${esc(L(TASKS[ui].title))}</h2><div class="pts">${unitSolved(ui)} / ${u.qs.length}</div></div>`);
+  u.qs.forEach((q,qi)=>{
+    const key=uk(ui,qi), checked=!!S.qc[key];
+    const qb=document.createElement("div"); qb.className="qbox"+(checked?(isRight(q,S.ans[key])?" ok":" bad"):"");
+    qb.insertAdjacentHTML("beforeend", `<div class="qn">${qi+1}</div>`);
+    const inner=document.createElement("div"); inner.className="qin";
+    renderPart(key, q, inner, checked);
+    if (checked){
+      const right=isRight(q,S.ans[key]);
+      inner.insertAdjacentHTML("beforeend", `<div class="verdict ${right?"ok":"bad"}">${right?"✓ "+esc(L(UI.good)):"✗ "+esc(L(UI.notYet))}</div><p class="tip"><b>${esc(L(UI.tipL))}</b> ${esc(L(q.tip))}</p>`);
+      if (!right){ const r=btn(L(UI.tryAgain),"",()=>{ delete S.qc[key]; delete S.ans[key]; delete S.perm[key]; save(); render(); }); r.style.alignSelf="flex-start"; inner.appendChild(r); }
+    } else {
+      const c=btn(L(UI.check),"primary",()=>{ S.qc[key]=true; if (isRight(q,S.ans[key])) S.solved[key]=true; save(); render(); });
+      c.style.alignSelf="flex-start"; inner.appendChild(c);
+    }
+    qb.appendChild(inner); card.appendChild(qb);
+  });
+  if (unitDone(ui)) card.insertAdjacentHTML("beforeend", `<div class="verdict ok">✓ ${esc(L(UI.unitDone))}</div>`);
+  const act=document.createElement("div"); act.className="actions";
+  if (ui>0) act.appendChild(btn(L(UI.prev),"",()=>go({unit:ui-1})));
+  if (ui<9) act.appendChild(btn(L(UI.nextUnit), unitDone(ui)?"primary":"", ()=>go({unit:ui+1})));
+  else act.appendChild(btn(L(UI.toTest), "primary", ()=>go({view:"home"})));
+  card.appendChild(act);
+  return card;
+}
+
+function renderTask(ti){
+  const t=TASKS[ti], checked=S.submitted;
+  const card=document.createElement("section"); card.className="card";
+  if (t.computer) card.insertAdjacentHTML("beforeend", `<span class="pc">💻 ${esc(L(UI.computer))}</span>`);
+  card.insertAdjacentHTML("beforeend", `<div class="thead"><h2><span>${ti+1}.</span>${esc(L(t.title))}</h2><div class="pts">${checked?fmt(S.score[ti]):"……"} / ${t.pts} ${L(UI.pts)}</div></div>`);
+  if (t.intro) card.insertAdjacentHTML("beforeend", `<div class="part">${t.intro()}</div>`);
+  t.parts.forEach((p,pi)=>renderPart(tk(ti,pi),p,card,checked));
+  if (checked){
+    const sc=S.score[ti]; const cls = sc===t.pts ? "ok" : sc>0 ? "part" : "bad";
+    card.insertAdjacentHTML("beforeend", `<div class="verdict ${cls}">${cls==="ok"?"✓":cls==="part"?"◐":"✗"} ${esc(L(UI[cls]))} · ${fmt(sc)} / ${t.pts} ${L(UI.pts)}</div>`);
+    card.insertAdjacentHTML("beforeend", `<div class="explain"><h3>${esc(L(UI.explain))}</h3>${L(t.explain)}</div>`);
+  }
+  const act=document.createElement("div"); act.className="actions";
+  if (ti>0) act.appendChild(btn(L(UI.prev),"",()=>go({cur:ti-1})));
+  act.appendChild(btn(ti<9?L(UI.next):(checked?L(UI.result):L(UI.finish)), "primary", ()=>go({cur:ti+1})));
+  card.appendChild(act);
+  return card;
+}
+
+function renderTestEnd(){
+  const card=document.createElement("section"); card.className="card";
+  if (!S.submitted){
+    card.insertAdjacentHTML("beforeend", `<div class="thead"><h2>${esc(L(UI.submitTitle))}</h2></div><p style="margin:0">${esc(L(UI.submitText))}</p>`);
+    let rows=""; TASKS.forEach((t,i)=>{ const a=taskAnswered(i); rows+=`<tr><td>${i+1}. ${esc(L(t.title))}</td><td style="color:${a?"var(--ok)":"var(--bad)"};font-family:var(--f-body)">${a?"✓ "+esc(L(UI.answered)):"○ "+esc(L(UI.open))}</td></tr>`; });
+    card.insertAdjacentHTML("beforeend", `<table class="restable">${rows}</table>`);
+    const act=document.createElement("div"); act.className="actions";
+    act.appendChild(btn(L(UI.prev),"",()=>go({cur:9})));
+    const sb=btn(L(UI.submit),"primary",null); let armed=false;
+    sb.onclick=()=>{ if(!armed){ armed=true; sb.textContent=L(UI.submitSure); return; } S.submitted=true; TASKS.forEach((t,i)=>{ S.score[i]=taskScore(i); }); go({cur:10}); };
+    act.appendChild(sb); card.appendChild(act);
+    return card;
+  }
+  const tot=totalScore();
+  card.insertAdjacentHTML("beforeend", `<div class="section-label">${esc(L(UI.resIntro))}</div><div class="big">${fmt(tot)} <span style="font-size:1.4rem;color:var(--muted)">/ 40 ${L(UI.pts)}</span></div><div class="bar2"><i style="width:${Math.round(tot/40*100)}%"></i></div>`);
+  let rows=""; TASKS.forEach((t,i)=>{ rows+=`<tr><td>${i+1}. ${esc(L(t.title))}</td><td>${fmt(S.score[i])} / ${t.pts}</td></tr>`; });
+  card.insertAdjacentHTML("beforeend", `<table class="restable">${rows}</table><p class="note" style="margin:0">${esc(L(UI.seeExpl))}</p>`);
+  const act=document.createElement("div"); act.className="actions";
+  const nb=btn(L(UI.newTest),"",null); let armed=false;
+  nb.onclick=()=>{ if(!armed){ armed=true; nb.textContent=L(UI.sure); nb.classList.add("primary"); return; }
+    Object.keys(S.ans).forEach(k2=>{ if(k2[0]==="t") delete S.ans[k2]; }); Object.keys(S.perm).forEach(k2=>{ if(k2[0]==="t") delete S.perm[k2]; });
+    S.submitted=false; S.score={}; go({cur:0}); };
+  act.appendChild(btn(L(UI.menu),"",()=>go({view:"home"}))); act.appendChild(nb); card.appendChild(act);
+  return card;
+}
+
+function render(){
+  renderHeader();
+  const m=$("main"); m.innerHTML="";
+  if (S.view==="home") m.appendChild(renderHome());
+  else if (S.view==="unit") m.appendChild(renderUnit(S.unit));
+  else m.appendChild(S.cur>=10 ? renderTestEnd() : renderTask(S.cur));
+}
+$("lang-pl").onclick=()=>{ lang="pl"; try{localStorage.setItem("o07-lang",lang);}catch(e){} render(); };
+$("lang-de").onclick=()=>{ lang="de"; try{localStorage.setItem("o07-lang",lang);}catch(e){} render(); };
+render();
+})();
+</script>
+
+</body>
+</html>
